@@ -508,17 +508,21 @@ function renderModalInfo(photo) {
     ? tags.map(t => `<span class="tag tag-cyan">${escHtml(t)}</span>`).join('')
     : '';
 
-  // AI label confidence bars — only if labels are objects with {name, confidence}
-  const labels = (photo.ai_labels || []).filter(l => typeof l === 'object' && l.name);
-  modalLabels.innerHTML = labels.length
+  // AI label confidence bars — use ai_tags (has confidence) or ai_labels (objects)
+  const aiTags = photo.ai_tags || [];
+  const labelsWithConfidence = aiTags.length
+    ? aiTags
+    : (photo.ai_labels || []).filter(l => typeof l === 'object' && l.name);
+
+  modalLabels.innerHTML = labelsWithConfidence.length
     ? `<div style="font-size:11px;font-weight:700;color:var(--turquoise);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">AI Labels</div>` +
-      labels.slice(0, 8).map(l => `
+      labelsWithConfidence.slice(0, 10).map(l => `
         <div class="label-row">
           <span class="label-name">${escHtml(l.name)}</span>
           <div class="label-bar-track">
             <div class="label-bar-fill" style="width:${l.confidence}%"></div>
           </div>
-          <span class="label-confidence">${l.confidence}%</span>
+          <span class="label-confidence">${Math.round(l.confidence)}%</span>
         </div>
       `).join('')
     : '';
