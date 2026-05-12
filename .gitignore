@@ -1,2 +1,19 @@
 ~$rticipant Instructions.docx
 2 - AI-Assisted Image Search\~$- Design Guidelines.docx
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# uv
+uv.lock
