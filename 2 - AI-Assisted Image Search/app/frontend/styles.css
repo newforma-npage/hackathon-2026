@@ -701,8 +701,7 @@ body {
 .modal-analyze-btn {
   position: absolute;
   bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 16px;
   background: var(--brand-gradient);
   color: var(--white);
   border: none;
@@ -718,6 +717,26 @@ body {
 }
 
 .modal-analyze-btn:hover { opacity: 0.88; }
+
+.modal-similar-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: var(--turquoise);
+  color: var(--white);
+  border: none;
+  border-radius: 40px;
+  padding: 10px 24px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,14,75,0.3);
+  transition: opacity 0.2s;
+}
+
+.modal-similar-btn:hover { opacity: 0.88; }
 
 .modal-info {
   padding: 28px 28px 28px 24px;
