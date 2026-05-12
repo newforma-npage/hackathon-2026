@@ -15,16 +15,19 @@ import asyncio
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Path setup — allow importing the root-level vector_store.py
+# Path setup — add the project root (2 - AI-Assisted Image Search/) to
+# sys.path so we can import the root-level vector_store.py.
+# Uses Path(__file__).resolve() so this works regardless of cwd.
 # ---------------------------------------------------------------------------
 
-_PROJECT_ROOT = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+_PROJECT_ROOT = str(
+    Path(__file__).resolve().parent.parent.parent.parent
 )
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
@@ -80,10 +83,16 @@ async def run_similarity_search(
     Raises:
         SearchCoreError: if the vector store raises any exception.
     """
-    # Build an optional project filter in the format VectorStore expects
-    filters: Optional[dict] = None
+    # Build an optional project filter using the SearchFilters dataclass
+    # that VectorStore.search_by_embedding() expects.
+    try:
+        from vector_store import SearchFilters  # type: ignore  # root-level module
+    except ImportError as exc:
+        raise SearchCoreError(f"Could not import SearchFilters: {exc}") from exc
+
+    filters: Optional[SearchFilters] = None
     if project_id:
-        filters = {"term": {"project_id": project_id}}
+        filters = SearchFilters(project_id=project_id)
 
     try:
         # search_by_embedding is synchronous (opensearch-py uses blocking HTTP).

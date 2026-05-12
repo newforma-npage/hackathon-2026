@@ -40,7 +40,7 @@ def _make_png_b64() -> str:
     return base64.b64encode(png_bytes).decode()
 
 
-MOCK_EMBEDDING = [0.1] * 1024
+MOCK_EMBEDDING = [0.1] * 1536  # must match EMBEDDING_DIMENSIONS in embedding.py
 MOCK_SEARCH_RESULTS = [
     {"image_id": "site-photo-01.jpg", "similarity_score": 0.95},
     {"image_id": "site-photo-02.jpg", "similarity_score": 0.88},
@@ -405,7 +405,7 @@ class TestSearchCore:
         ])
         sc._vector_store = mock_vs
 
-        results = await run_similarity_search([0.1] * 1024, top_k=5, project_id=None, request_id="r1")
+        results = await run_similarity_search([0.1] * 1536, top_k=5, project_id=None, request_id="r1")
 
         mock_vs.search_by_embedding.assert_called_once()
         assert len(results) == 2
@@ -420,7 +420,7 @@ class TestSearchCore:
         mock_vs = self._make_mock_vs([{"image_id": "a.jpg", "score": 0.85}])
         sc._vector_store = mock_vs
 
-        results = await run_similarity_search([0.1] * 1024, top_k=1, project_id=None, request_id="r1")
+        results = await run_similarity_search([0.1] * 1536, top_k=1, project_id=None, request_id="r1")
 
         assert "similarity_score" in results[0]
         assert "score" not in results[0]
@@ -429,17 +429,20 @@ class TestSearchCore:
         sc._vector_store = None
 
     @pytest.mark.asyncio
-    async def test_project_filter_passed_as_term_query(self):
+    async def test_project_filter_passed_as_search_filters_instance(self):
         from app.services.search_core import run_similarity_search
         import app.services.search_core as sc
 
         mock_vs = self._make_mock_vs([])
         sc._vector_store = mock_vs
 
-        await run_similarity_search([0.1] * 1024, top_k=5, project_id="PROJ-001", request_id="r1")
+        await run_similarity_search([0.1] * 1536, top_k=5, project_id="PROJ-001", request_id="r1")
 
         call_kwargs = mock_vs.search_by_embedding.call_args[1]
-        assert call_kwargs["filters"] == {"term": {"project_id": "PROJ-001"}}
+        filters = call_kwargs["filters"]
+        # Must be a SearchFilters instance, not a raw dict
+        assert hasattr(filters, "project_id"), "filters must be a SearchFilters instance"
+        assert filters.project_id == "PROJ-001"
 
         sc._vector_store = None
 
@@ -451,7 +454,7 @@ class TestSearchCore:
         mock_vs = self._make_mock_vs([])
         sc._vector_store = mock_vs
 
-        await run_similarity_search([0.1] * 1024, top_k=5, project_id=None, request_id="r1")
+        await run_similarity_search([0.1] * 1536, top_k=5, project_id=None, request_id="r1")
 
         call_kwargs = mock_vs.search_by_embedding.call_args[1]
         assert call_kwargs["filters"] is None
@@ -468,7 +471,7 @@ class TestSearchCore:
         sc._vector_store = mock_vs
 
         with pytest.raises(SearchCoreError):
-            await run_similarity_search([0.1] * 1024, top_k=5, project_id=None, request_id="r1")
+            await run_similarity_search([0.1] * 1536, top_k=5, project_id=None, request_id="r1")
 
         sc._vector_store = None
 
@@ -480,7 +483,7 @@ class TestSearchCore:
         mock_vs = self._make_mock_vs([{"image_id": "a.jpg", "score": 0.123456789}])
         sc._vector_store = mock_vs
 
-        results = await run_similarity_search([0.1] * 1024, top_k=1, project_id=None, request_id="r1")
+        results = await run_similarity_search([0.1] * 1536, top_k=1, project_id=None, request_id="r1")
 
         assert results[0]["similarity_score"] == 0.1235
 

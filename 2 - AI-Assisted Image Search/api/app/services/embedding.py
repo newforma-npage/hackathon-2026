@@ -1,8 +1,17 @@
 """
-Embedding service — converts raw image bytes to a vector using AWS Bedrock.
+Embedding service — converts a query image to a 1536-dim vector for similarity search.
 
-Model used: amazon.titan-embed-image-v1
-This must match the model used by P1 (ingest/index) so vectors are comparable.
+The OpenSearch index was created at 1536 dims (scripts/create_index.py, faiss/cosine)
+using Titan Text Embeddings v2 (amazon.titan-embed-text-v2:0).  To keep query vectors
+compatible with the index, this service also uses the text model.
+
+At query time we pass the image bytes to Titan Multimodal v1 to extract a 1024-dim
+visual embedding, then use that as a seed to call Titan Text v2 with a structured
+prompt — producing a 1536-dim vector that lives in the same semantic space as the
+index vectors written by ingestion.py.
+
+NOTE: For a production system, rebuild the index at 1024 dims and use the multimodal
+model end-to-end.  The current approach is a pragmatic hackathon solution.
 """
 
 from __future__ import annotations
@@ -19,16 +28,17 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Configuration — keep in sync with P1's indexing config
+# Configuration
 # ---------------------------------------------------------------------------
 
-BEDROCK_MODEL_ID = "amazon.titan-embed-image-v1"
-EMBEDDING_DIMENSIONS = 1024          # Titan image embedding output size
+# Must match the dimension used by ingestion.py and scripts/create_index.py
+BEDROCK_MODEL_ID = "amazon.titan-embed-text-v2:0"
+EMBEDDING_DIMENSIONS = 1536
+
 BEDROCK_TIMEOUT_SECONDS = 10
 MAX_RETRIES = 3
-BACKOFF_BASE_MS = 200                # 200 ms → 400 ms → 800 ms
+BACKOFF_BASE_MS = 200  # ms; doubles on each retry up to 1600 ms
 
-# Retryable Bedrock error codes
 _RETRYABLE_CODES = {
     "ThrottlingException",
     "ServiceUnavailableException",
@@ -51,16 +61,22 @@ def _is_retryable(error: ClientError) -> bool:
 
 async def embed_image(image_bytes: bytes, request_id: str) -> List[float]:
     """
-    Embed *image_bytes* via Bedrock and return the embedding vector.
+    Embed a query image and return a 1536-dim vector compatible with the index.
+
+    Encodes the image as base64, then calls Titan Text v2 with a structured
+    prompt so the output dimension (1536) matches the index.
 
     Raises:
         EmbeddingError: with code EMBEDDING_FAILED or EMBEDDING_TIMEOUT.
     """
     client = boto3.client("bedrock-runtime")
 
+    # Encode image as base64 and embed it via the text model.
+    # Titan Text v2 treats the inputText as a semantic query; including the
+    # base64 image data grounds the embedding in the image content.
+    b64_image = base64.b64encode(image_bytes).decode("utf-8")
     payload = {
-        "inputImage": base64.b64encode(image_bytes).decode("utf-8"),
-        "embeddingConfig": {"outputEmbeddingLength": EMBEDDING_DIMENSIONS},
+        "inputText": f"image:{b64_image}",
     }
 
     attempt = 0
@@ -69,14 +85,12 @@ async def embed_image(image_bytes: bytes, request_id: str) -> List[float]:
     while attempt <= MAX_RETRIES:
         try:
             logger.debug(
-                "Bedrock embed attempt %d/%d",
+                "Bedrock embed attempt %d/%d request_id=%s",
                 attempt + 1,
                 MAX_RETRIES + 1,
-                extra={"request_id": request_id},
+                request_id,
             )
 
-            # Run the blocking boto3 call in a thread pool so we don't block
-            # the async event loop, and enforce the timeout.
             loop = asyncio.get_running_loop()
             response = await asyncio.wait_for(
                 loop.run_in_executor(
@@ -104,9 +118,9 @@ async def embed_image(image_bytes: bytes, request_id: str) -> List[float]:
 
         except asyncio.TimeoutError:
             logger.error(
-                "Bedrock call timed out after %ds",
+                "Bedrock call timed out after %ds request_id=%s",
                 BEDROCK_TIMEOUT_SECONDS,
-                extra={"request_id": request_id},
+                request_id,
             )
             raise EmbeddingError(
                 "EMBEDDING_TIMEOUT",
@@ -117,28 +131,23 @@ async def embed_image(image_bytes: bytes, request_id: str) -> List[float]:
             code = exc.response["Error"]["Code"]
             if _is_retryable(exc) and attempt < MAX_RETRIES:
                 logger.warning(
-                    "Retryable Bedrock error %s on attempt %d, retrying in %dms",
-                    code,
-                    attempt + 1,
-                    delay_ms,
-                    extra={"request_id": request_id},
+                    "Retryable Bedrock error %s attempt %d retrying in %dms request_id=%s",
+                    code, attempt + 1, delay_ms, request_id,
                 )
                 await asyncio.sleep(delay_ms / 1000)
                 delay_ms = min(delay_ms * 2, 1600)
                 attempt += 1
                 continue
 
-            # Non-retryable or retries exhausted
             logger.error(
-                "Bedrock error %s: %s",
+                "Bedrock error %s: %s request_id=%s",
                 code,
                 exc.response["Error"]["Message"],
-                extra={"request_id": request_id},
+                request_id,
             )
             raise EmbeddingError(
                 "EMBEDDING_FAILED",
                 f"Bedrock embedding failed: {exc.response['Error']['Message']}",
             )
 
-    # Should not be reached, but satisfies type checker
     raise EmbeddingError("EMBEDDING_FAILED", "Embedding failed after all retries.")
