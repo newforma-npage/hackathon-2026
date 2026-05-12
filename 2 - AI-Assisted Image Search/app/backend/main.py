@@ -22,11 +22,13 @@ from pathlib import Path
 from typing import Optional
 
 import boto3
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+from .auth import require_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +250,7 @@ def list_projects():
     return [{"project_id": k, "project_name": v} for k, v in seen.items()]
 
 
-@app.post("/api/photos/{filename}/ingest")
+@app.post("/api/photos/{filename}/ingest", dependencies=[Depends(require_api_key)])
 def ingest_photo(filename: str):
     """
     Run Rekognition + Bedrock on a single photo, store labels in metadata,
@@ -297,7 +299,7 @@ def ingest_photo(filename: str):
     }
 
 
-@app.post("/api/photos/ingest-all")
+@app.post("/api/photos/ingest-all", dependencies=[Depends(require_api_key)])
 def ingest_all_photos():
     """
     Ingest every photo that has not yet been indexed (no ai_labels).
@@ -337,7 +339,7 @@ def ingest_all_photos():
     return {"processed": len(results), "indexed": indexed, "results": results}
 
 
-@app.post("/api/search")
+@app.post("/api/search", dependencies=[Depends(require_api_key)])
 def search_photos(req: TextSearchRequest):
     """
     Natural-language semantic search using Bedrock text embeddings + vector kNN.
@@ -425,7 +427,7 @@ def search_photos(req: TextSearchRequest):
         }
 
 
-@app.post("/api/search/similarity")
+@app.post("/api/search/similarity", dependencies=[Depends(require_api_key)])
 async def similarity_search(file: UploadFile = File(...)):
     """
     Upload an image → embed with Bedrock Titan Multimodal → kNN search.
@@ -477,7 +479,7 @@ async def similarity_search(file: UploadFile = File(...)):
         }
 
 
-@app.post("/api/vector-store/init")
+@app.post("/api/vector-store/init", dependencies=[Depends(require_api_key)])
 def init_vector_store():
     """Create the vector index / table if it does not exist."""
     try:
@@ -506,7 +508,7 @@ def _error_json(code: str, message: str, status: int) -> JSONResponse:
     return JSONResponse(status_code=status, content={"code": code, "message": message})
 
 
-@app.post("/search/similar")
+@app.post("/search/similar", dependencies=[Depends(require_api_key)])
 def search_similar(req: SimilarImageRequest):
     """
     P5 — Similarity search endpoint.
