@@ -17,3 +17,6 @@ build/
 
 # uv
 uv.lock
+
+# Generated test output
+test_output.txt
