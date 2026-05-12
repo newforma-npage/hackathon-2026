@@ -77,7 +77,7 @@ async def embed_image(image_bytes: bytes, request_id: str) -> List[float]:
 
             # Run the blocking boto3 call in a thread pool so we don't block
             # the async event loop, and enforce the timeout.
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             response = await asyncio.wait_for(
                 loop.run_in_executor(
                     None,
