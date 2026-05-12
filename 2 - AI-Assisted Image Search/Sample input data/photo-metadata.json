@@ -8,8 +8,88 @@
       "taken_by": "John Smith",
       "location": "Pier P-3, East Side",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "General: Indoors, Wiring. Safety: Interior Design. Material: Wood, Plywood, Hardwood. Damage: Stained Wood.",
+      "ai_labels": [
+        "indoors",
+        "interior-design",
+        "wood",
+        "wiring",
+        "plywood",
+        "hardwood",
+        "stained-wood"
+      ],
+      "ai_tags": [
+        {
+          "name": "Indoors",
+          "slug": "indoors",
+          "confidence": 100.0,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Interior Design",
+          "slug": "interior-design",
+          "confidence": 100.0,
+          "category": "safety",
+          "parents": [
+            "Indoors"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 99.99,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wiring",
+          "slug": "wiring",
+          "confidence": 99.22,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plywood",
+          "slug": "plywood",
+          "confidence": 95.82,
+          "category": "material",
+          "parents": [
+            "Wood"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Hardwood",
+          "slug": "hardwood",
+          "confidence": 65.81,
+          "category": "material",
+          "parents": [
+            "Wood"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Stained Wood",
+          "slug": "stained-wood",
+          "confidence": 56.85,
+          "category": "damage",
+          "parents": [
+            "Hardwood",
+            "Wood"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:14.258074",
+      "photo_id": "9e983522-5492-5261-a065-aa7e3c0c22db"
     },
     {
       "filename": "site-photo-02.jpg",
@@ -19,8 +99,65 @@
       "taken_by": "John Smith",
       "location": "Station 4+50, Deck Level",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "General: Electrical Device, Switch. Damage: Corrosion, Rust. Material: Wood.",
+      "ai_labels": [
+        "electrical-device",
+        "switch",
+        "corrosion",
+        "rust",
+        "wood"
+      ],
+      "ai_tags": [
+        {
+          "name": "Electrical Device",
+          "slug": "electrical-device",
+          "confidence": 94.99,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Switch",
+          "slug": "switch",
+          "confidence": 94.99,
+          "category": "general",
+          "parents": [
+            "Electrical Device"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Corrosion",
+          "slug": "corrosion",
+          "confidence": 76.88,
+          "category": "damage",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Rust",
+          "slug": "rust",
+          "confidence": 76.88,
+          "category": "damage",
+          "parents": [
+            "Corrosion"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 55.77,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:14.924299",
+      "photo_id": "ac68c115-0380-547b-aecf-ead55c75c712"
     },
     {
       "filename": "site-photo-03.jpg",
@@ -30,8 +167,140 @@
       "taken_by": "David Park",
       "location": "East Abutment, Grid Lines 1-4",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Structure: Architecture, Building, Construction. General: Car, Transportation, Demolition. Equipment: Vehicle, Scaffolding.",
+      "ai_labels": [
+        "architecture",
+        "building",
+        "construction",
+        "car",
+        "transportation",
+        "vehicle",
+        "scaffolding",
+        "demolition",
+        "wood",
+        "condo",
+        "housing",
+        "urban"
+      ],
+      "ai_tags": [
+        {
+          "name": "Architecture",
+          "slug": "architecture",
+          "confidence": 99.95,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Building",
+          "slug": "building",
+          "confidence": 99.95,
+          "category": "structure",
+          "parents": [
+            "Architecture"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 99.36,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Car",
+          "slug": "car",
+          "confidence": 80.43,
+          "category": "general",
+          "parents": [
+            "Transportation",
+            "Vehicle"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Transportation",
+          "slug": "transportation",
+          "confidence": 80.43,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Vehicle",
+          "slug": "vehicle",
+          "confidence": 80.43,
+          "category": "equipment",
+          "parents": [
+            "Transportation"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Scaffolding",
+          "slug": "scaffolding",
+          "confidence": 57.69,
+          "category": "equipment",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Demolition",
+          "slug": "demolition",
+          "confidence": 56.95,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 56.37,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Condo",
+          "slug": "condo",
+          "confidence": 55.77,
+          "category": "general",
+          "parents": [
+            "Architecture",
+            "Building",
+            "Housing"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Housing",
+          "slug": "housing",
+          "confidence": 55.77,
+          "category": "general",
+          "parents": [
+            "Architecture",
+            "Building"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Urban",
+          "slug": "urban",
+          "confidence": 55.02,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:15.703014",
+      "photo_id": "57652cb0-4b6e-5b0e-8868-e6e71bb58f70"
     },
     {
       "filename": "site-photo-04.jpg",
@@ -41,8 +310,78 @@
       "taken_by": "Mike Johnson",
       "location": "Floor 14, Grid B-5",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "General: Electrical Device, Electronics, Hardware, Wiring, Computer, Server.",
+      "ai_labels": [
+        "electrical-device",
+        "electronics",
+        "hardware",
+        "wiring",
+        "computer",
+        "server"
+      ],
+      "ai_tags": [
+        {
+          "name": "Electrical Device",
+          "slug": "electrical-device",
+          "confidence": 76.76,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Electronics",
+          "slug": "electronics",
+          "confidence": 73.39,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Hardware",
+          "slug": "hardware",
+          "confidence": 73.39,
+          "category": "general",
+          "parents": [
+            "Electronics"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wiring",
+          "slug": "wiring",
+          "confidence": 72.15,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Computer",
+          "slug": "computer",
+          "confidence": 65.91,
+          "category": "general",
+          "parents": [
+            "Electronics"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Server",
+          "slug": "server",
+          "confidence": 62.45,
+          "category": "general",
+          "parents": [
+            "Computer",
+            "Electronics",
+            "Hardware"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:16.280158",
+      "photo_id": "724396e1-81a6-5389-bdca-84e627590f34"
     },
     {
       "filename": "site-photo-05.jpg",
@@ -52,8 +391,91 @@
       "taken_by": "Tom Bradley",
       "location": "Floor 18, Corridor Ceiling",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Structure: Architecture, Building, Office Building, Construction. People: Person. General: Condo, Housing.",
+      "ai_labels": [
+        "architecture",
+        "building",
+        "office-building",
+        "person",
+        "construction",
+        "condo",
+        "housing"
+      ],
+      "ai_tags": [
+        {
+          "name": "Architecture",
+          "slug": "architecture",
+          "confidence": 100.0,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Building",
+          "slug": "building",
+          "confidence": 100.0,
+          "category": "structure",
+          "parents": [
+            "Architecture"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Office Building",
+          "slug": "office-building",
+          "confidence": 100.0,
+          "category": "structure",
+          "parents": [
+            "Architecture",
+            "Building"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 86.1,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 75.16,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Condo",
+          "slug": "condo",
+          "confidence": 56.67,
+          "category": "general",
+          "parents": [
+            "Architecture",
+            "Building",
+            "Housing"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Housing",
+          "slug": "housing",
+          "confidence": 56.67,
+          "category": "general",
+          "parents": [
+            "Architecture",
+            "Building"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:16.872757",
+      "photo_id": "ab0ac3a0-6666-56db-ba28-570d459147e1"
     },
     {
       "filename": "site-photo-06.jpg",
@@ -63,8 +485,68 @@
       "taken_by": "Jennifer Adams",
       "location": "Ground Floor, South Elevation",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "General: Indoors, Plumbing, Basement, Room. People: Person.",
+      "ai_labels": [
+        "indoors",
+        "person",
+        "plumbing",
+        "basement",
+        "room"
+      ],
+      "ai_tags": [
+        {
+          "name": "Indoors",
+          "slug": "indoors",
+          "confidence": 86.62,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 57.7,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 57.7,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Basement",
+          "slug": "basement",
+          "confidence": 56.1,
+          "category": "general",
+          "parents": [
+            "Indoors",
+            "Room"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Room",
+          "slug": "room",
+          "confidence": 56.1,
+          "category": "general",
+          "parents": [
+            "Indoors"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:17.478321",
+      "photo_id": "17932874-ff21-52d1-9bef-fffc3e2e9917"
     },
     {
       "filename": "site-photo-07.jpg",
@@ -74,8 +556,36 @@
       "taken_by": "Amanda Foster",
       "location": "Room 1-142, Level 1",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Construction, Concrete.",
+      "ai_labels": [
+        "construction",
+        "concrete"
+      ],
+      "ai_tags": [
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 99.99,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Concrete",
+          "slug": "concrete",
+          "confidence": 86.38,
+          "category": "material",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:18.087009",
+      "photo_id": "6b181691-01e8-53b7-b67b-1bf00cf448fb"
     },
     {
       "filename": "site-photo-08.jpg",
@@ -85,8 +595,56 @@
       "taken_by": "Amanda Foster",
       "location": "Basement Mechanical Room",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Structure: Construction, Construction Crane, Architecture, Building.",
+      "ai_labels": [
+        "construction",
+        "construction-crane",
+        "architecture",
+        "building"
+      ],
+      "ai_tags": [
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 100.0,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Construction Crane",
+          "slug": "construction-crane",
+          "confidence": 99.85,
+          "category": "structure",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Architecture",
+          "slug": "architecture",
+          "confidence": 83.5,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Building",
+          "slug": "building",
+          "confidence": 83.5,
+          "category": "structure",
+          "parents": [
+            "Architecture"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:18.638787",
+      "photo_id": "daf656a4-1c2d-5c41-b821-cd7a1f536315"
     },
     {
       "filename": "site-photo-09.jpg",
@@ -96,8 +654,68 @@
       "taken_by": "Carlos Rivera",
       "location": "Floor 4, Unit 4A/4B",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "People: Person. General: Plumbing, E-scooter, Transportation. Equipment: Vehicle.",
+      "ai_labels": [
+        "person",
+        "plumbing",
+        "e-scooter",
+        "transportation",
+        "vehicle"
+      ],
+      "ai_tags": [
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 99.85,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 99.85,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "E-scooter",
+          "slug": "e-scooter",
+          "confidence": 66.11,
+          "category": "general",
+          "parents": [
+            "Transportation",
+            "Vehicle"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Transportation",
+          "slug": "transportation",
+          "confidence": 66.11,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Vehicle",
+          "slug": "vehicle",
+          "confidence": 66.11,
+          "category": "equipment",
+          "parents": [
+            "Transportation"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:19.170380",
+      "photo_id": "43cd74c4-a43c-5118-b3fa-182c504db566"
     },
     {
       "filename": "site-photo-10.jpg",
@@ -107,8 +725,45 @@
       "taken_by": "Carlos Rivera",
       "location": "Parking Level 1, South Entry",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Structure: Construction. Material: Concrete. General: Home Renovation Work.",
+      "ai_labels": [
+        "construction",
+        "concrete",
+        "home-renovation-work"
+      ],
+      "ai_tags": [
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 100.0,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Concrete",
+          "slug": "concrete",
+          "confidence": 93.4,
+          "category": "material",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Home Renovation Work",
+          "slug": "home-renovation-work",
+          "confidence": 55.68,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:19.808822",
+      "photo_id": "dc1e6799-162b-5d8f-816c-9470d2c0e96e"
     },
     {
       "filename": "site-photo-11.jpg",
@@ -118,8 +773,45 @@
       "taken_by": "John Smith",
       "location": "2nd Floor, Grid Line A",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "People: Person. General: Plumbing, Mailbox.",
+      "ai_labels": [
+        "person",
+        "plumbing",
+        "mailbox"
+      ],
+      "ai_tags": [
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 76.6,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 76.6,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Mailbox",
+          "slug": "mailbox",
+          "confidence": 56.78,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:20.360338",
+      "photo_id": "6cbcf2c6-e9f6-5147-83a1-4881934dc2cc"
     },
     {
       "filename": "site-photo-12.jpg",
@@ -129,8 +821,83 @@
       "taken_by": "John Smith",
       "location": "2nd Floor, Window W-206",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "People: Person. General: Plumbing, Wiring, Indoors, Lamp. Material: Wood. Safety: Interior Design.",
+      "ai_labels": [
+        "person",
+        "plumbing",
+        "wood",
+        "wiring",
+        "indoors",
+        "lamp",
+        "interior-design"
+      ],
+      "ai_tags": [
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 90.56,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 90.56,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 69.29,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wiring",
+          "slug": "wiring",
+          "confidence": 57.77,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Indoors",
+          "slug": "indoors",
+          "confidence": 57.61,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Lamp",
+          "slug": "lamp",
+          "confidence": 56.07,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Interior Design",
+          "slug": "interior-design",
+          "confidence": 55.43,
+          "category": "safety",
+          "parents": [
+            "Indoors"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T18:13:46.474822",
+      "photo_id": "7e110099-9035-537f-8b58-f5720a160ff8"
     },
     {
       "filename": "site-photo-13.jpg",
@@ -140,8 +907,77 @@
       "taken_by": "Frank Morrison",
       "location": "Security Checkpoint Area",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "People: Person. General: Plumbing, Factory. Material: Pipeline. Structure: Architecture, Building.",
+      "ai_labels": [
+        "person",
+        "plumbing",
+        "pipeline",
+        "architecture",
+        "building",
+        "factory"
+      ],
+      "ai_tags": [
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 78.39,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 78.39,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Pipeline",
+          "slug": "pipeline",
+          "confidence": 60.88,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Architecture",
+          "slug": "architecture",
+          "confidence": 56.17,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Building",
+          "slug": "building",
+          "confidence": 56.17,
+          "category": "structure",
+          "parents": [
+            "Architecture"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Factory",
+          "slug": "factory",
+          "confidence": 56.17,
+          "category": "general",
+          "parents": [
+            "Architecture",
+            "Building"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:21.536600",
+      "photo_id": "846ca3af-caa3-5bf1-b320-391ba1dd8343"
     },
     {
       "filename": "site-photo-14.jpg",
@@ -151,8 +987,34 @@
       "taken_by": "Amanda Foster",
       "location": "Raw Water Intake Building",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Home Renovation Work, Wood.",
+      "ai_labels": [
+        "home-renovation-work",
+        "wood"
+      ],
+      "ai_tags": [
+        {
+          "name": "Home Renovation Work",
+          "slug": "home-renovation-work",
+          "confidence": 91.78,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 77.6,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:22.092753",
+      "photo_id": "769257c0-2c13-5847-92ee-13aff3a4bec7"
     },
     {
       "filename": "site-photo-15.jpg",
@@ -162,8 +1024,76 @@
       "taken_by": "John Smith",
       "location": "Pier P-1, Bearing Seat",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "Structure: Construction. Equipment: Scaffolding. General: Home Renovation Work. Material: Concrete. People: Person, Worker.",
+      "ai_labels": [
+        "construction",
+        "scaffolding",
+        "home-renovation-work",
+        "concrete",
+        "person",
+        "worker"
+      ],
+      "ai_tags": [
+        {
+          "name": "Construction",
+          "slug": "construction",
+          "confidence": 99.95,
+          "category": "structure",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Scaffolding",
+          "slug": "scaffolding",
+          "confidence": 75.08,
+          "category": "equipment",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Home Renovation Work",
+          "slug": "home-renovation-work",
+          "confidence": 62.65,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Concrete",
+          "slug": "concrete",
+          "confidence": 56.34,
+          "category": "material",
+          "parents": [
+            "Construction"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 56.26,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Worker",
+          "slug": "worker",
+          "confidence": 56.26,
+          "category": "people",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:22.922488",
+      "photo_id": "8ef806de-f49c-5581-8615-7d6ceceee21c"
     },
     {
       "filename": "site-photo-16.jpg",
@@ -173,8 +1103,74 @@
       "taken_by": "Mike Johnson",
       "location": "Roof Level",
       "tags": [],
-      "ai_description": null,
-      "ai_labels": []
+      "ai_description": "General: Indoors, Plumbing, Lamp. Safety: Interior Design. People: Person. Material: Wood.",
+      "ai_labels": [
+        "indoors",
+        "interior-design",
+        "person",
+        "plumbing",
+        "lamp",
+        "wood"
+      ],
+      "ai_tags": [
+        {
+          "name": "Indoors",
+          "slug": "indoors",
+          "confidence": 99.87,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Interior Design",
+          "slug": "interior-design",
+          "confidence": 99.87,
+          "category": "safety",
+          "parents": [
+            "Indoors"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Person",
+          "slug": "person",
+          "confidence": 98.97,
+          "category": "people",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Plumbing",
+          "slug": "plumbing",
+          "confidence": 98.97,
+          "category": "general",
+          "parents": [
+            "Person"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Lamp",
+          "slug": "lamp",
+          "confidence": 92.85,
+          "category": "general",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Wood",
+          "slug": "wood",
+          "confidence": 56.43,
+          "category": "material",
+          "parents": [],
+          "source": "rekognition"
+        }
+      ],
+      "moderation_flags": [],
+      "is_flagged": false,
+      "index_version": 1,
+      "indexed_at": "2026-05-12T17:59:23.515314",
+      "photo_id": "d151257b-de54-5e79-8098-306030925e8b"
     }
   ]
 }

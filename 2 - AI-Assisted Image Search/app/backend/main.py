@@ -225,6 +225,14 @@ def root():
     return {"message": "Visual Project Intelligence Search API v2", "docs": "/docs"}
 
 
+@app.get("/favicon.svg", include_in_schema=False)
+def favicon():
+    path = FRONTEND_DIR / "favicon.svg"
+    if path.exists():
+        return FileResponse(str(path), media_type="image/svg+xml")
+    return JSONResponse(status_code=404, content={"detail": "Not found"})
+
+
 @app.get("/api/photos")
 def list_photos():
     """Return all photos with their metadata."""
@@ -401,11 +409,21 @@ def search_photos(req: TextSearchRequest):
         terms = req.query.lower().split()
 
         def _score(photo: dict) -> int:
+            # Build a comprehensive searchable blob from all metadata fields
+            tag_names = []
+            for tag in (photo.get("ai_tags") or []):
+                tag_names.append(tag.get("name", "").lower())
+                tag_names.append(tag.get("category", "").lower())
+                tag_names.extend(p.lower() for p in tag.get("parents", []))
+
             blob = " ".join([
                 photo.get("ai_description") or "",
                 " ".join(photo.get("ai_labels") or []),
+                " ".join(tag_names),
                 photo.get("location", ""),
                 photo.get("project_name", ""),
+                photo.get("filename", ""),
+                photo.get("taken_by", ""),
             ]).lower()
             return sum(1 for t in terms if t in blob)
 

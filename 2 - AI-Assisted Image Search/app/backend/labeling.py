@@ -64,8 +64,8 @@ logger = logging.getLogger(__name__)
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
-MIN_CONFIDENCE: float = 70.0          # labels below this are discarded
-MAX_LABELS: int = 20                  # max labels to request from Rekognition
+MIN_CONFIDENCE: float = float(os.getenv("REKOGNITION_MIN_CONFIDENCE", "55.0"))  # labels below this are discarded
+MAX_LABELS: int = int(os.getenv("REKOGNITION_MAX_LABELS", "50"))               # max labels to request from Rekognition
 DESCRIPTION_LABEL_COUNT: int = 8      # how many labels to include in the description
 AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
 
