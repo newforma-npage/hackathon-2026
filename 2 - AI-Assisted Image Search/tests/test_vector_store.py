@@ -281,6 +281,200 @@ class TestIndexImageNormalisation:
         assert body["tags"] == ["hello world"]
 
 
+# ---------------------------------------------------------------------------
+# SearchFilters — to_opensearch_filter() unit tests
+# ---------------------------------------------------------------------------
+
+class TestSearchFilters:
+    """Unit tests for SearchFilters.to_opensearch_filter()."""
+
+    def test_empty_filters_returns_none(self):
+        from vector_store import SearchFilters
+        assert SearchFilters().to_opensearch_filter() is None
+
+    def test_is_empty_true_when_no_fields_set(self):
+        from vector_store import SearchFilters
+        assert SearchFilters().is_empty() is True
+
+    def test_is_empty_false_when_project_id_set(self):
+        from vector_store import SearchFilters
+        assert SearchFilters(project_id="PROJ-001").is_empty() is False
+
+    def test_project_id_produces_term_clause(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(project_id="PROJ-001").to_opensearch_filter()
+        assert f is not None
+        assert {"term": {"project_id": "PROJ-001"}} in f["bool"]["must"]
+
+    def test_date_from_produces_range_gte(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(date_from="2024-01-01").to_opensearch_filter()
+        assert f is not None
+        range_clauses = [c for c in f["bool"]["must"] if "range" in c]
+        assert len(range_clauses) == 1
+        assert range_clauses[0]["range"]["date"]["gte"] == "2024-01-01"
+        assert "lte" not in range_clauses[0]["range"]["date"]
+
+    def test_date_to_produces_range_lte(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(date_to="2024-12-31").to_opensearch_filter()
+        assert f is not None
+        range_clauses = [c for c in f["bool"]["must"] if "range" in c]
+        assert len(range_clauses) == 1
+        assert range_clauses[0]["range"]["date"]["lte"] == "2024-12-31"
+        assert "gte" not in range_clauses[0]["range"]["date"]
+
+    def test_date_from_and_date_to_merged_into_single_range_clause(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(date_from="2024-01-01", date_to="2024-12-31").to_opensearch_filter()
+        assert f is not None
+        range_clauses = [c for c in f["bool"]["must"] if "range" in c]
+        assert len(range_clauses) == 1  # single clause, not two
+        assert range_clauses[0]["range"]["date"]["gte"] == "2024-01-01"
+        assert range_clauses[0]["range"]["date"]["lte"] == "2024-12-31"
+
+    def test_tags_produce_terms_clause_normalised(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(tags=["Bridge", "CRANE"]).to_opensearch_filter()
+        assert f is not None
+        terms_clauses = [c for c in f["bool"]["must"] if "terms" in c]
+        assert len(terms_clauses) == 1
+        assert set(terms_clauses[0]["terms"]["tags"]) == {"bridge", "crane"}
+
+    def test_tags_are_normalised_before_filter(self):
+        from vector_store import SearchFilters
+        # Duplicate and mixed-case tags should be deduped and lowercased
+        f = SearchFilters(tags=["Bridge", "bridge", "Concrete Crack"]).to_opensearch_filter()
+        terms_clauses = [c for c in f["bool"]["must"] if "terms" in c]
+        assert set(terms_clauses[0]["terms"]["tags"]) == {"bridge", "concrete crack"}
+
+    def test_all_filters_combined_in_must(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(
+            project_id="PROJ-001",
+            date_from="2024-01-01",
+            date_to="2024-12-31",
+            tags=["bridge"],
+        ).to_opensearch_filter()
+        assert f is not None
+        must = f["bool"]["must"]
+        # Should have: term, range, terms = 3 clauses
+        assert len(must) == 3
+        clause_types = {list(c.keys())[0] for c in must}
+        assert clause_types == {"term", "range", "terms"}
+
+    def test_empty_tags_list_produces_no_terms_clause(self):
+        from vector_store import SearchFilters
+        f = SearchFilters(project_id="PROJ-001", tags=[]).to_opensearch_filter()
+        assert f is not None
+        terms_clauses = [c for c in f["bool"]["must"] if "terms" in c]
+        assert len(terms_clauses) == 0
+
+    def test_tags_that_normalise_to_empty_produce_no_terms_clause(self):
+        from vector_store import SearchFilters
+        # Tags that are all special chars normalise to empty strings
+        f = SearchFilters(project_id="PROJ-001", tags=["!!!", "   "]).to_opensearch_filter()
+        assert f is not None
+        terms_clauses = [c for c in f["bool"]["must"] if "terms" in c]
+        assert len(terms_clauses) == 0
+
+
+# ---------------------------------------------------------------------------
+# search_by_embedding pre-filter integration tests
+# ---------------------------------------------------------------------------
+
+class TestSearchByEmbeddingPreFilter:
+    """Verify that search_by_embedding wires SearchFilters into the kNN query."""
+
+    def _make_vs(self, monkeypatch):
+        monkeypatch.setenv("OPENSEARCH_ENDPOINT", "https://dummy.us-east-1.aoss.amazonaws.com")
+        with (
+            patch("vector_store.OpenSearch"),
+            patch("vector_store.boto3.Session") as mock_session_cls,
+        ):
+            mock_session_cls.return_value.get_credentials.return_value = MagicMock()
+            from vector_store import VectorStore
+            vs = VectorStore()
+        vs._client = MagicMock()
+        vs._client.search.return_value = {"hits": {"hits": []}}
+        return vs
+
+    def _captured_knn_clause(self, vs):
+        body = vs._client.search.call_args[1]["body"]
+        return body["query"]["knn"]["embedding"]
+
+    def test_no_filter_omits_filter_key(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding([0.0] * 1536)
+        knn = self._captured_knn_clause(vs)
+        assert "filter" not in knn
+
+    def test_empty_search_filters_omits_filter_key(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding([0.0] * 1536, filters=SearchFilters())
+        knn = self._captured_knn_clause(vs)
+        assert "filter" not in knn
+
+    def test_project_id_filter_in_knn_clause(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding([0.0] * 1536, filters=SearchFilters(project_id="PROJ-001"))
+        knn = self._captured_knn_clause(vs)
+        assert "filter" in knn
+        must = knn["filter"]["bool"]["must"]
+        assert {"term": {"project_id": "PROJ-001"}} in must
+
+    def test_date_range_filter_in_knn_clause(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding(
+            [0.0] * 1536,
+            filters=SearchFilters(date_from="2024-01-01", date_to="2024-06-30"),
+        )
+        knn = self._captured_knn_clause(vs)
+        must = knn["filter"]["bool"]["must"]
+        range_clauses = [c for c in must if "range" in c]
+        assert len(range_clauses) == 1
+        assert range_clauses[0]["range"]["date"] == {"gte": "2024-01-01", "lte": "2024-06-30"}
+
+    def test_tags_filter_in_knn_clause(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding([0.0] * 1536, filters=SearchFilters(tags=["Bridge", "Crane"]))
+        knn = self._captured_knn_clause(vs)
+        must = knn["filter"]["bool"]["must"]
+        terms_clauses = [c for c in must if "terms" in c]
+        assert len(terms_clauses) == 1
+        assert set(terms_clauses[0]["terms"]["tags"]) == {"bridge", "crane"}
+
+    def test_all_three_filters_combined(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        vs.search_by_embedding(
+            [0.0] * 1536,
+            filters=SearchFilters(
+                project_id="PROJ-001",
+                date_from="2024-01-01",
+                date_to="2024-12-31",
+                tags=["bridge"],
+            ),
+        )
+        knn = self._captured_knn_clause(vs)
+        must = knn["filter"]["bool"]["must"]
+        assert len(must) == 3
+        clause_types = {list(c.keys())[0] for c in must}
+        assert clause_types == {"term", "range", "terms"}
+
+    def test_no_network_call_before_dimension_check(self, monkeypatch):
+        from vector_store import SearchFilters
+        vs = self._make_vs(monkeypatch)
+        with pytest.raises(ValueError):
+            vs.search_by_embedding([0.0] * 10, filters=SearchFilters(project_id="P"))
+        vs._client.search.assert_not_called()
+
+
 class TestDeleteImageNotFound:
 
     def _make_vector_store_with_mock_client(self, monkeypatch):

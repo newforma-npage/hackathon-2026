@@ -20,9 +20,10 @@ import time
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
+from app.auth import require_api_key
 from app.models.schemas import (
     ErrorResponse,
     ImageResult,
@@ -65,8 +66,11 @@ def _detect_image_format(data: bytes) -> Optional[str]:
 @router.post(
     "/search/similar",
     response_model=SimilarSearchResponse,
+    dependencies=[Depends(require_api_key)],
     responses={
         400: {"model": ErrorResponse},
+        401: {"model": ErrorResponse},
+        403: {"model": ErrorResponse},
         415: {"model": ErrorResponse},
         502: {"model": ErrorResponse},
         504: {"model": ErrorResponse},
