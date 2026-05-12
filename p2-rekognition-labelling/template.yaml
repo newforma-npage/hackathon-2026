@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  P2 — Tagging Handler Lambda
+  Consumes messages from tagging-queue, calls Rekognition DetectLabels,
+  normalises labels, and forwards enriched messages to embedding-queue.
+
+# ---------------------------------------------------------------------------
+# Parameters
+# ---------------------------------------------------------------------------
+
+Parameters:
+  TaggingQueueArn:
+    Type: String
+    Description: ARN of the SQS tagging-queue that triggers this Lambda.
+
+  EmbeddingQueueUrl:
+    Type: String
+    Description: URL of the SQS embedding-queue to forward TagsReady messages to.
+
+  CloudWatchNamespace:
+    Type: String
+    Default: VisualProjectIntelligenceSearch
+    Description: CloudWatch metrics namespace for all P2 metrics.
+
+# ---------------------------------------------------------------------------
+# Globals
+# ---------------------------------------------------------------------------
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 60
+    MemorySize: 256
+    Environment:
+      Variables:
+        EMBEDDING_QUEUE_URL: !Ref EmbeddingQueueUrl
+        CLOUDWATCH_NAMESPACE: !Ref CloudWatchNamespace
+        # AWS_REGION is injected automatically by the Lambda runtime — do not set it here
+
+# ---------------------------------------------------------------------------
+# Resources
+# ---------------------------------------------------------------------------
+
+Resources:
+
+  # -------------------------------------------------------------------------
+  # Dead-letter queue for tagging-queue failures
+  # -------------------------------------------------------------------------
+  TaggingDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: tagging-dlq
+      MessageRetentionPeriod: 1209600  # 14 days in seconds
+      Tags:
+        - Key: Project
+          Value: VisualProjectIntelligenceSearch
+        - Key: Track
+          Value: P2
+
+  # -------------------------------------------------------------------------
+  # Tagging Handler Lambda
+  # -------------------------------------------------------------------------
+  TaggingHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tagging-handler
+      Handler: tagging_handler/handler.lambda_handler
+      CodeUri: .
+      Description: >
+        Reads from tagging-queue, calls Rekognition DetectLabels, normalises
+        labels, and forwards a TagsReady message to embedding-queue.
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Sid: RekognitionDetectLabels
+              Effect: Allow
+              Action:
+                - rekognition:DetectLabels
+              Resource: "*"
+            - Sid: SQSConsumeTaggingQueue
+              Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource: !Ref TaggingQueueArn
+            - Sid: SQSPublishEmbeddingQueue
+              Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !Sub
+                - "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:embedding-queue"
+                - {}
+            - Sid: CloudWatchPutMetrics
+              Effect: Allow
+              Action:
+                - cloudwatch:PutMetricData
+              Resource: "*"
+      Events:
+        TaggingQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !Ref TaggingQueueArn
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures  # enables partial batch failure / bisect-on-error
+      Tags:
+        Project: VisualProjectIntelligenceSearch
+        Track: P2
+
+# ---------------------------------------------------------------------------
+# Outputs
+# ---------------------------------------------------------------------------
+
+Outputs:
+  TaggingHandlerFunctionArn:
+    Description: ARN of the Tagging Handler Lambda function.
+    Value: !GetAtt TaggingHandlerFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-TaggingHandlerFunctionArn"
+
+  TaggingDLQArn:
+    Description: >
+      ARN of the Tagging DLQ. Set this as the RedrivePolicy DeadLetterTargetArn
+      on the tagging-queue resource (owned by the P1 stack or shared infra stack).
+    Value: !GetAtt TaggingDLQ.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-TaggingDLQArn"
+
+  TaggingDLQUrl:
+    Description: URL of the Tagging DLQ.
+    Value: !Ref TaggingDLQ
+    Export:
+      Name: !Sub "${AWS::StackName}-TaggingDLQUrl"
