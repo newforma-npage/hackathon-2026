@@ -253,6 +253,7 @@ async function handleSearch() {
 
 function handleClear() {
   searchInput.value   = '';
+  searchInput.placeholder = 'Search photos by content, location, or project...';
   filterProject.value = '';
   filterPhotog.value  = '';
   resultsInfo.innerHTML = '';
@@ -391,6 +392,8 @@ function handleFindSimilar() {
 
   // Close modal and show results
   closeModal();
+  searchInput.value = '';
+  searchInput.placeholder = `Similar to ${currentPhoto.filename} — clear to search again`;
   renderPhotos(scored);
   const tagList = [...photoLabels].slice(0, 5).join(', ');
   if (resultsInfo) {
@@ -398,6 +401,7 @@ function handleFindSimilar() {
       <button class="results-clear-link" id="results-clear">Show all</button>`;
     document.getElementById('results-clear')?.addEventListener('click', () => {
       resultsInfo.innerHTML = '';
+      searchInput.placeholder = 'Search photos by content, location, or project...';
       renderPhotos(allPhotos);
     });
   }
