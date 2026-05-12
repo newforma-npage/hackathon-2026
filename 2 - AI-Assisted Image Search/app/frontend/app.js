@@ -84,7 +84,6 @@ async function apiFetch(path, options = {}) {
 
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  analyzeProgress.hidden = true;
   loadFilters();
   loadAllPhotos();
   bindEvents();
@@ -247,9 +246,9 @@ function handleClear() {
 async function handleAnalyzeAll() {
   analyzeAllBtn.disabled = true;
   analyzeAllBtn.textContent = 'Analyzing...';
-  analyzeProgress.hidden = false;
+  analyzeProgress.classList.add('visible');
   progressFill.style.width = '0%';
-  progressLabel.textContent = 'Starting AWS Rekognition + Bedrock analysis...';
+  progressLabel.textContent = 'Running AI analysis on all images...';
 
   try {
     let fakeProgress = 0;
@@ -279,7 +278,7 @@ async function handleAnalyzeAll() {
         <path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/>
       </svg>
       Analyze All with AI`;
-    setTimeout(() => { analyzeProgress.hidden = true; }, 3000);
+    setTimeout(() => { analyzeProgress.classList.remove('visible'); }, 3000);
   }
 }
 
