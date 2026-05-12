@@ -393,40 +393,41 @@ async function handleAnalyzeSingle() {
 
 function handleFindSimilar() {
   if (!currentPhoto) return;
-  const photoLabels = new Set(currentPhoto.ai_labels || []);
+  const sourcePhoto = currentPhoto; // capture before closing modal
+  const photoLabels = new Set(sourcePhoto.ai_labels || []);
   if (photoLabels.size === 0) {
     showToast('This photo has no AI labels yet. Analyze it first.', 'error');
     return;
   }
 
-  // Score all other photos by tag overlap — require at least 1 matching tag
+  // Score ALL other photos by number of shared tags
   const scored = [];
   for (const photo of allPhotos) {
-    if (photo.filename === currentPhoto.filename) continue;
+    if (photo.filename === sourcePhoto.filename) continue;
     const otherLabels = new Set(photo.ai_labels || []);
-    const overlap = [...photoLabels].filter(l => otherLabels.has(l)).length;
-    if (overlap >= 1) {
-      scored.push({ ...photo, relevance_score: overlap, _matchedTags: [...photoLabels].filter(l => otherLabels.has(l)) });
+    const matchedTags = [...photoLabels].filter(l => otherLabels.has(l));
+    if (matchedTags.length > 0) {
+      scored.push({ ...photo, relevance_score: matchedTags.length, _matchedTags: matchedTags });
     }
   }
 
   scored.sort((a, b) => b.relevance_score - a.relevance_score);
-  const topResults = scored.slice(0, 8);
 
-  if (topResults.length === 0) {
-    closeModal();
+  // Close modal first
+  closeModal();
+
+  if (scored.length === 0) {
     showToast('No similar photos found with matching tags.', 'error');
     return;
   }
 
-  // Close modal and show results
-  closeModal();
+  // Show filtered results
   searchInput.value = '';
-  searchInput.placeholder = `Similar to ${currentPhoto.filename} — clear to search again`;
-  renderPhotos(topResults);
+  searchInput.placeholder = `Similar to ${sourcePhoto.filename} — clear to search again`;
+  renderPhotos(scored);
   const tagList = [...photoLabels].slice(0, 5).join(', ');
   if (resultsInfo) {
-    resultsInfo.innerHTML = `<strong>${topResults.length}</strong> similar photo${topResults.length !== 1 ? 's' : ''} to <strong>${escHtml(currentPhoto.filename)}</strong> (tags: ${escHtml(tagList)})
+    resultsInfo.innerHTML = `<strong>${scored.length}</strong> similar photo${scored.length !== 1 ? 's' : ''} to <strong>${escHtml(sourcePhoto.filename)}</strong> (shared tags: ${escHtml(tagList)})
       <button class="results-clear-link" id="results-clear">Show all</button>`;
     document.getElementById('results-clear')?.addEventListener('click', () => {
       resultsInfo.innerHTML = '';
