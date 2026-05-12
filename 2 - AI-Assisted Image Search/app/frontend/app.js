@@ -399,19 +399,25 @@ function handleFindSimilar() {
     return;
   }
 
-  // Score all other photos by tag overlap — require at least 2 matching tags
+  // Score all other photos by tag overlap — require at least 1 matching tag
   const scored = [];
   for (const photo of allPhotos) {
     if (photo.filename === currentPhoto.filename) continue;
     const otherLabels = new Set(photo.ai_labels || []);
     const overlap = [...photoLabels].filter(l => otherLabels.has(l)).length;
-    if (overlap >= 2) {
+    if (overlap >= 1) {
       scored.push({ ...photo, relevance_score: overlap, _matchedTags: [...photoLabels].filter(l => otherLabels.has(l)) });
     }
   }
 
   scored.sort((a, b) => b.relevance_score - a.relevance_score);
   const topResults = scored.slice(0, 8);
+
+  if (topResults.length === 0) {
+    closeModal();
+    showToast('No similar photos found with matching tags.', 'error');
+    return;
+  }
 
   // Close modal and show results
   closeModal();
@@ -448,8 +454,8 @@ function renderPhotos(photos, query = '') {
     return;
   }
 
-  // Update photographer filter whenever we render a fresh set
-  updatePhotographerFilter(photos);
+  // Update photographer filter from full dataset (not filtered subset)
+  updatePhotographerFilter(allPhotos);
 
   photos.forEach(photo => {
     const card = createPhotoCard(photo, query);
