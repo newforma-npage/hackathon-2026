@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visual Project Intelligence Search</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #1a1f2e 0%, #16213e 100%);
+      border-bottom: 1px solid #2d3748;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #63b3ed, #9f7aea);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header .subtitle {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 2px;
+    }
+    header .actions { margin-left: auto; display: flex; gap: 0.75rem; }
+
+    /* ── Buttons ──────────────────────────────────────────────────────────── */
+    .btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: #4299e1; color: #fff; }
+    .btn-secondary { background: #2d3748; color: #e2e8f0; border: 1px solid #4a5568; }
+    .btn-success { background: #48bb78; color: #fff; }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Layout ───────────────────────────────────────────────────────────── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+    /* ── Search bar ───────────────────────────────────────────────────────── */
+    .search-section {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-input-wrap {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+    .search-input-wrap .icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #718096;
+      font-size: 1.1rem;
+    }
+    input[type="text"], input[type="date"], select {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      color: #e2e8f0;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input-wrap input { padding-left: 2.5rem; }
+    input:focus, select:focus { border-color: #4299e1; }
+
+    .filters-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; min-width: 160px; }
+    .filter-group label { font-size: 0.75rem; color: #718096; }
+
+    /* ── Tabs ─────────────────────────────────────────────────────────────── */
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .tab {
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #2d3748;
+      background: transparent;
+      color: #718096;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.15s;
+    }
+    .tab.active { background: #4299e1; border-color: #4299e1; color: #fff; }
+    .tab:hover:not(.active) { border-color: #4299e1; color: #4299e1; }
+
+    /* ── Similarity upload ────────────────────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed #2d3748;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      background: #1a1f2e;
+      margin-bottom: 1.5rem;
+    }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #4299e1; }
+    .upload-zone p { color: #718096; font-size: 0.9rem; margin-top: 0.5rem; }
+    .upload-zone .upload-icon { font-size: 2.5rem; }
+    #upload-preview { max-height: 160px; border-radius: 8px; margin-top: 1rem; }
+
+    /* ── Results grid ─────────────────────────────────────────────────────── */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .results-count { font-size: 0.875rem; color: #718096; }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .photo-card {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .photo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      border-color: #4299e1;
+    }
+    .photo-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      background: #0f1117;
+    }
+    .photo-card .card-body { padding: 0.9rem; }
+    .photo-card .card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .photo-card .card-meta {
+      font-size: 0.75rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+    .tag {
+      background: #2d3748;
+      color: #90cdf4;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+    .tag.ai { background: #2c3e6b; color: #9f7aea; }
+
+    /* ── Status bar ───────────────────────────────────────────────────────── */
+    .status-bar {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: #718096;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-bar.info { border-color: #4299e1; color: #90cdf4; }
+    .status-bar.success { border-color: #48bb78; color: #9ae6b4; }
+    .status-bar.error { border-color: #fc8181; color: #fc8181; }
+
+    /* ── Modal ────────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 16px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .modal-header h2 { font-size: 1.1rem; }
+    .modal-close { background: none; border: none; color: #718096; font-size: 1.5rem; cursor: pointer; }
+    .modal img { width: 100%; border-radius: 8px; margin-bottom: 1rem; }
+    .modal .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+    }
+    .modal .detail-item label { color: #718096; font-size: 0.75rem; display: block; margin-bottom: 0.2rem; }
+
+    /* ── Spinner ──────────────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid #4a5568;
+      border-top-color: #4299e1;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty state ──────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #4a5568;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div>
+    <div class="logo">🔍 Visual Project Intelligence</div>
+    <div class="subtitle">AI-Assisted Image Search</div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-secondary btn-sm" onclick="loadAllPhotos()">Browse All</button>
+    <button class="btn btn-success btn-sm" id="tag-all-btn" onclick="tagAllPhotos()">
+      ✨ Auto-Tag All Images
+    </button>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- Status bar -->
+  <div id="status-bar" class="status-bar" style="display:none"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('text')">🔤 Text Search</button>
+    <button class="tab" onclick="switchTab('similarity')">🖼️ Similarity Search</button>
+  </div>
+
+  <!-- Text Search Panel -->
+  <div id="panel-text">
+    <div class="search-section">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <span class="icon">🔍</span>
+          <input type="text" id="search-query" placeholder='e.g. "bridge", "concrete crack", "steel beam"'
+            onkeydown="if(event.key==='Enter') doSearch()" />
+        </div>
+        <button class="btn btn-primary" onclick="doSearch()">Search</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">Clear</button>
+      </div>
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Project</label>
+          <select id="filter-project">
+            <option value="">All Projects</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Date From</label>
+          <input type="date" id="filter-date-from" />
+        </div>
+        <div class="filter-group">
+          <label>Date To</label>
+          <input type="date" id="filter-date-to" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Similarity Search Panel -->
+  <div id="panel-similarity" style="display:none">
+    <div class="upload-zone" id="upload-zone"
+      onclick="document.getElementById('sim-file').click()"
+      ondragover="event.preventDefault(); this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)">
+      <div class="upload-icon">📷</div>
+      <strong>Click or drag an image here</strong>
+      <p>Upload a photo to find visually similar images across all projects</p>
+      <img id="upload-preview" style="display:none" alt="Preview" />
+    </div>
+    <input type="file" id="sim-file" accept="image/*" style="display:none" onchange="handleFileSelect(event)" />
+    <button class="btn btn-primary" id="sim-search-btn" onclick="doSimilaritySearch()" disabled>
+      Find Similar Images
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div style="margin-top: 1.5rem">
+    <div class="results-header">
+      <div id="results-count" class="results-count"></div>
+    </div>
+    <div id="photo-grid" class="photo-grid"></div>
+    <div id="empty-state" class="empty-state" style="display:none">
+      <div class="icon">🖼️</div>
+      <p>No images found. Try a different search term or browse all images.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Photo Detail</h2>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <img id="modal-img" src="" alt="" />
+    <div class="detail-grid" id="modal-details"></div>
+    <div style="margin-top:1rem">
+      <div style="font-size:0.75rem; color:#718096; margin-bottom:0.4rem">AI Labels</div>
+      <div id="modal-tags" class="tags"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '';  // same origin
+  let simFile = null;
+  let currentTab = 'text';
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    await loadProjects();
+    await loadAllPhotos();
+  }
+
+  async function loadProjects() {
+    try {
+      const res = await fetch(`${API}/api/projects`);
+      const projects = await res.json();
+      const sel = document.getElementById('filter-project');
+      projects.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.project_id;
+        opt.textContent = `${p.project_id} – ${p.project_name}`;
+        sel.appendChild(opt);
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  async function loadAllPhotos() {
+    showStatus('Loading photos…', 'info');
+    try {
+      const res = await fetch(`${API}/api/photos`);
+      const photos = await res.json();
+      renderGrid(photos);
+      showStatus(`${photos.length} photos loaded`, 'success');
+    } catch (e) {
+      showStatus('Could not connect to API. Make sure the backend is running.', 'error');
+    }
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'text') || (i === 1 && tab === 'similarity'));
+    });
+    document.getElementById('panel-text').style.display = tab === 'text' ? '' : 'none';
+    document.getElementById('panel-similarity').style.display = tab === 'similarity' ? '' : 'none';
+  }
+
+  // ── Text search ───────────────────────────────────────────────────────────
+  async function doSearch() {
+    const query = document.getElementById('search-query').value.trim();
+    if (!query) { loadAllPhotos(); return; }
+
+    showStatus(`<span class="spinner"></span> Searching for "${query}"…`, 'info');
+
+    const body = {
+      query,
+      project_id: document.getElementById('filter-project').value || null,
+      date_from: document.getElementById('filter-date-from').value || null,
+      date_to: document.getElementById('filter-date-to').value || null,
+    };
+
+    try {
+      const res = await fetch(`${API}/api/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      renderGrid(data.results);
+      showStatus(`Found ${data.total} result(s) for "${query}"`, data.total > 0 ? 'success' : 'info');
+    } catch (e) {
+      showStatus('Search failed. Is the backend running?', 'error');
+    }
+  }
+
+  function clearSearch() {
+    document.getElementById('search-query').value = '';
+    document.getElementById('filter-project').value = '';
+    document.getElementById('filter-date-from').value = '';
+    document.getElementById('filter-date-to').value = '';
+    loadAllPhotos();
+  }
+
+  // ── Similarity search ─────────────────────────────────────────────────────
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) setSimFile(file);
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    document.getElementById('upload-zone').classList.remove('drag-over');
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) setSimFile(file);
+  }
+
+  function setSimFile(file) {
+    simFile = file;
+    const preview = document.getElementById('upload-preview');
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    document.getElementById('sim-search-btn').disabled = false;
+  }
+
+  async function doSimilaritySearch() {
+    if (!simFile) return;
+    showStatus('<span class="spinner"></span> Analyzing image and finding similar photos…', 'info');
+
+    const formData = new FormData();
+    formData.append('file', simFile);
+
+    try {
+      const res = await fetch(`${API}/api/search/similarity`, { method: 'POST', body: formData });
+      const data = await res.json();
+      renderGrid(data.results);
+      const labelStr = data.upload_labels.slice(0, 5).join(', ');
+      showStatus(`Found ${data.total} similar image(s). Detected: ${labelStr}`, data.total > 0 ? 'success' : 'info');
+    } catch (e) {
+      showStatus('Similarity search failed. Is the backend running?', 'error');
+    }
+  }
+
+  // ── Auto-tag ──────────────────────────────────────────────────────────────
+  async function tagAllPhotos() {
+    const btn = document.getElementById('tag-all-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Tagging…';
+    showStatus('<span class="spinner"></span> Running AWS Rekognition on all untagged images…', 'info');
+
+    try {
+      const res = await fetch(`${API}/api/photos/tag-all`, { method: 'POST' });
+      const data = await res.json();
+      const tagged = data.results.filter(r => r.status === 'tagged').length;
+      showStatus(`✅ Done! Tagged ${tagged} new image(s) out of ${data.processed} total.`, 'success');
+      await loadAllPhotos();
+    } catch (e) {
+      showStatus('Auto-tagging failed. Is the backend running?', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✨ Auto-Tag All Images';
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function renderGrid(photos) {
+    const grid = document.getElementById('photo-grid');
+    const empty = document.getElementById('empty-state');
+    const count = document.getElementById('results-count');
+
+    grid.innerHTML = '';
+    count.textContent = photos.length ? `${photos.length} image(s)` : '';
+
+    if (!photos.length) {
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    photos.forEach(photo => {
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.onclick = () => openModal(photo);
+
+      const date = photo.date_taken ? new Date(photo.date_taken).toLocaleDateString() : '—';
+      const labels = (photo.ai_labels || []).slice(0, 4);
+      const tagHtml = labels.map(l => `<span class="tag ai">${l}</span>`).join('');
+
+      card.innerHTML = `
+        <img src="${API}/api/photos/${photo.filename}/image" alt="${photo.filename}"
+             loading="lazy" onerror="this.style.background='#2d3748'" />
+        <div class="card-body">
+          <div class="card-title">${photo.filename}</div>
+          <div class="card-meta">
+            📁 ${photo.project_name || photo.project_id}<br>
+            📍 ${photo.location || '—'}<br>
+            📅 ${date} · ${photo.taken_by || '—'}
+          </div>
+          ${tagHtml ? `<div class="tags">${tagHtml}</div>` : '<div style="font-size:0.75rem;color:#4a5568;margin-top:0.4rem">Not yet tagged</div>'}
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────────────────
+  function openModal(photo) {
+    document.getElementById('modal-title').textContent = photo.filename;
+    document.getElementById('modal-img').src = `${API}/api/photos/${photo.filename}/image`;
+
+    const date = photo.date_taken ? new Date(photo.date_taken).toLocaleString() : '—';
+    document.getElementById('modal-details').innerHTML = `
+      <div class="detail-item"><label>Project</label>${photo.project_name || '—'}</div>
+      <div class="detail-item"><label>Project ID</label>${photo.project_id || '—'}</div>
+      <div class="detail-item"><label>Location</label>${photo.location || '—'}</div>
+      <div class="detail-item"><label>Taken By</label>${photo.taken_by || '—'}</div>
+      <div class="detail-item"><label>Date Taken</label>${date}</div>
+      <div class="detail-item"><label>AI Description</label>${photo.ai_description || 'Not tagged yet'}</div>
+    `;
+
+    const allLabels = [...(photo.tags || []), ...(photo.ai_labels || [])];
+    document.getElementById('modal-tags').innerHTML = allLabels.length
+      ? allLabels.map(l => `<span class="tag ai">${l}</span>`).join('')
+      : '<span style="color:#4a5568;font-size:0.8rem">No labels yet — click Auto-Tag to generate them</span>';
+
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  }
+  function closeModalDirect() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  // ── Status ────────────────────────────────────────────────────────────────
+  function showStatus(msg, type = 'info') {
+    const bar = document.getElementById('status-bar');
+    bar.innerHTML = msg;
+    bar.className = `status-bar ${type}`;
+    bar.style.display = 'flex';
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
