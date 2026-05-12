@@ -248,25 +248,29 @@ async function handleAnalyzeAll() {
   analyzeAllBtn.textContent = 'Analyzing...';
   analyzeProgress.classList.add('visible');
   progressFill.style.width = '0%';
-  progressLabel.textContent = 'Running AI analysis on all images...';
+  progressLabel.textContent = 'Running AI analysis on each image...';
 
   try {
-    let fakeProgress = 0;
-    const interval = setInterval(() => {
-      fakeProgress = Math.min(fakeProgress + 3, 85);
-      progressFill.style.width = fakeProgress + '%';
-    }, 400);
+    const total = allPhotos.length;
+    let indexed = 0;
+    let errors = 0;
 
-    const data = await apiFetch('/api/photos/ingest-all', { method: 'POST' });
+    for (let i = 0; i < total; i++) {
+      const photo = allPhotos[i];
+      progressFill.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+      progressLabel.textContent = `Analyzing ${i + 1}/${total}: ${photo.filename}...`;
 
-    clearInterval(interval);
+      try {
+        await apiFetch(`/api/photos/${photo.filename}/ingest`, { method: 'POST' });
+        indexed++;
+      } catch (e) {
+        errors++;
+      }
+    }
+
     progressFill.style.width = '100%';
-
-    const indexed = data.indexed ?? 0;
-    const processed = data.processed ?? 0;
-    progressLabel.textContent = `Done! ${indexed} photo${indexed !== 1 ? 's' : ''} indexed out of ${processed}.`;
-
-    showToast(`${indexed} photos indexed successfully`, 'success');
+    progressLabel.textContent = `Done! ${indexed} photo${indexed !== 1 ? 's' : ''} analyzed${errors ? `, ${errors} error${errors !== 1 ? 's' : ''}` : ''}.`;
+    showToast(`${indexed} photos analyzed successfully`, 'success');
     await loadAllPhotos();
   } catch (err) {
     showToast(`Analysis failed: ${err.message}`, 'error');
