@@ -4,10 +4,26 @@ VectorStore client module for OpenSearch Serverless.
 Wraps the opensearchpy client with SigV4 authentication and exposes
 index_image, search_by_embedding, and delete_image for use by downstream
 consumers (Dev 3 — Bedrock embeddings, Dev 5 — Search API).
+
+Tag normalisation
+-----------------
+All tags are normalised before being stored in the index.  The canonical
+normalisation logic lives in p2-rekognition-labelling/tagging_handler/normaliser.py
+and is reproduced here as a pure function so this module remains independently
+deployable without a cross-directory import dependency.
+
+Normalisation steps (applied in order):
+  1. Extract the ``Name`` field if the input is a Rekognition label dict.
+  2. Lowercase.
+  3. Deduplicate (case-insensitive, preserving first-seen order).
+  4. Strip non-alphanumeric characters except hyphens and spaces.
+  5. Strip leading/trailing whitespace.
+  6. Discard empty strings.
 """
 
 import logging
 import os
+import re
 
 import boto3
 from opensearchpy import AWSV4SignerAuth, OpenSearch, RequestsHttpConnection
@@ -19,6 +35,49 @@ _EMBEDDING_DIM = 1536
 _INDEX_NAME = "images"
 _AWS_REGION = "us-east-1"
 _AOSS_SERVICE = "aoss"
+
+
+# ---------------------------------------------------------------------------
+# Tag normalisation
+# Canonical source: p2-rekognition-labelling/tagging_handler/normaliser.py
+# ---------------------------------------------------------------------------
+
+def normalise_tags(labels: list) -> list[str]:
+    """
+    Normalise a list of raw Rekognition labels (or plain strings) into
+    canonical, unique, lowercase tag strings.
+
+    Accepts either plain strings or Rekognition label dicts (``{"Name": ...}``).
+
+    Steps:
+      1. Extract ``Name`` from dicts.
+      2. Lowercase.
+      3. Deduplicate (case-insensitive, first-seen order preserved).
+      4. Strip non-alphanumeric characters except hyphens and spaces.
+      5. Strip leading/trailing whitespace.
+      6. Discard empty strings.
+
+    Examples:
+        >>> normalise_tags(["Bridge", "bridge", "Concrete Crack"])
+        ['bridge', 'concrete crack']
+        >>> normalise_tags([{"Name": "Steel Beam"}, "steel beam"])
+        ['steel beam']
+    """
+    seen: set[str] = set()
+    result: list[str] = []
+
+    for raw in labels:
+        text: str = raw.get("Name", "") if isinstance(raw, dict) else str(raw)
+        text = text.lower()
+        if text in seen:
+            continue
+        seen.add(text)
+        text = re.sub(r"[^a-z0-9\- ]", "", text)
+        text = text.strip()
+        if text:
+            result.append(text)
+
+    return result
 
 
 class VectorStore:
@@ -82,8 +141,10 @@ class VectorStore:
             Project the image belongs to.
         embedding : list[float]
             1536-dimensional float32 vector from Bedrock Titan Multimodal.
-        tags : list[str]
+        tags : list[str | dict]
             AI-generated or manual tags (e.g. ["bridge", "concrete crack"]).
+            Accepts plain strings or Rekognition label dicts (``{"Name": ...}``).
+            Tags are normalised (lowercase, deduplicated, stripped) before storage.
         date : str
             ISO 8601 date string (e.g. "2024-04-15T08:30:00-07:00").
         location : str
@@ -107,11 +168,13 @@ class VectorStore:
                 f"got {len(embedding)}."
             )
 
+        normalised_tags = normalise_tags(tags)
+
         body = {
             "image_id": image_id,
             "project_id": project_id,
             "embedding": embedding,
-            "tags": tags,
+            "tags": normalised_tags,
             "date": date,
             "location": location,
         }

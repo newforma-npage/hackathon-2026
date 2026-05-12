@@ -125,7 +125,9 @@ class TestProperty1IndexRoundTrip:
         assert source["image_id"] == image_id
         assert source["project_id"] == project_id
         assert source["embedding"] == embedding
-        assert source["tags"] == tags
+        # Tags are normalised before storage — compare against the normalised form
+        from vector_store import normalise_tags
+        assert source["tags"] == normalise_tags(tags)
         assert source["date"] == date
         assert source["location"] == location
 
@@ -183,11 +185,12 @@ class TestProperty2IdempotentReindex:
         assert image_id in store
         assert len([k for k in store if k == image_id]) == 1
 
-        # _source matches doc_b
+        # _source matches doc_b (tags are normalised)
+        from vector_store import normalise_tags
         source = store[image_id]
         assert source["project_id"] == project_id_b
         assert source["embedding"] == embedding_b
-        assert source["tags"] == tags_b
+        assert source["tags"] == normalise_tags(tags_b)
         assert source["date"] == date_b
         assert source["location"] == location_b
 
