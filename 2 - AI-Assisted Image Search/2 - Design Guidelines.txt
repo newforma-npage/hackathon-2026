@@ -1,0 +1,33 @@
+2. NPC IDEA: AI-Assisted Image Search
+ 
+Idea Name
+Visual Project Intelligence Search
+ 
+Problem Statement
+Project teams store thousands of images, but there is no efficient way to search them based on visual content. Users must rely on filenames or manual browsing, making it difficult to find relevant images.
+ 
+Solution Description
+An AI-powered image search system that uses computer vision to index and tag project images. Users can search using natural language (e.g., “bridge”, “steel beam damage”, “foundation cracks”) and retrieve relevant images instantly.
+ 
+Key Features
+1.	Natural Language Image Search
+  Search images using plain English descriptions instead of filenames. 
+2.	Automatic Image Tagging
+  AI generates tags like “bridge”, “crane”, “concrete crack” for indexing. 
+3.	Similarity Search
+  Upload an image to find visually similar images across projects. 
+4.	Project Context Linking
+  Each image links back to its project, documents, and metadata. 
+5.	Smart Filters
+  Filter by project, date, location, or detected objects. 
+ 
+Key Performance Indicators (KPIs)
+·	Reduce time to locate images by 60% 
+·	Increase image reuse across projects by 25% 
+·	Improve search success rate (first attempt) by 40% 
+ 
+Other Context
+·	Systems: NPC image storage tied to projects 
+·	Technologies: AWS Rekognition, Bedrock embeddings, vector search 
+·	Data Types: Images + project metadata
+
