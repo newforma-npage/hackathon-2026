@@ -258,8 +258,8 @@ class TestProperty3SearchTopKAndFields:
 # Feature: vector-store-setup, Property 4: Filter clause is correctly embedded in the kNN query
 class TestProperty4FilterQueryConstruction:
     """
-    For any valid filter dict passed to search_by_embedding, the OpenSearch
-    query body should contain a bool.filter clause matching the provided filter,
+    For any SearchFilters with a project_id set, the OpenSearch query body
+    should contain a bool.must clause with a term filter on project_id,
     and the knn query should still be present at the top level.
 
     Validates: Requirements 3.4
@@ -267,14 +267,13 @@ class TestProperty4FilterQueryConstruction:
 
     @given(
         embedding=_embedding_strategy,
-        filters=st.dictionaries(
-            st.text(min_size=1),
-            st.text(min_size=1),
-        ),
+        project_id=st.text(min_size=1),
     )
     @settings(max_examples=100)
-    def test_filter_embedded_in_knn_query(self, embedding, filters):
+    def test_project_id_filter_embedded_in_knn_query(self, embedding, project_id):
         # Feature: vector-store-setup, Property 4: Filter clause is correctly embedded in the kNN query
+        from vector_store import SearchFilters
+
         vs = _make_vector_store()
 
         captured_body: list[dict] = []
@@ -285,7 +284,7 @@ class TestProperty4FilterQueryConstruction:
 
         vs._client.search.side_effect = fake_search
 
-        vs.search_by_embedding(embedding, filters=filters)
+        vs.search_by_embedding(embedding, filters=SearchFilters(project_id=project_id))
 
         assert len(captured_body) == 1
         query_body = captured_body[0]
@@ -294,15 +293,14 @@ class TestProperty4FilterQueryConstruction:
         assert "knn" in query_body["query"]
         knn_embedding = query_body["query"]["knn"]["embedding"]
 
-        # filter must be embedded as bool.filter
+        # filter must be embedded
         assert "filter" in knn_embedding
         bool_filter = knn_embedding["filter"]
         assert "bool" in bool_filter
-        assert "filter" in bool_filter["bool"]
+        must_clauses = bool_filter["bool"]["must"]
 
-        # The provided filter dict must appear inside the bool.filter list
-        filter_list = bool_filter["bool"]["filter"]
-        assert filters in filter_list
+        # project_id term filter must be present
+        assert {"term": {"project_id": project_id}} in must_clauses
 
 
 # ===========================================================================

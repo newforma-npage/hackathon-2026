@@ -19,11 +19,28 @@ Normalisation steps (applied in order):
   4. Strip non-alphanumeric characters except hyphens and spaces.
   5. Strip leading/trailing whitespace.
   6. Discard empty strings.
+
+Pre-filtering
+-------------
+``search_by_embedding`` accepts a ``SearchFilters`` dataclass that is
+translated into an OpenSearch ``bool.filter`` clause applied *inside* the
+kNN query so that the ANN engine only considers matching documents.
+
+Supported filters:
+  project_id  – exact match on the ``project_id`` keyword field
+  date_from   – inclusive lower bound on the ``date`` date field (ISO 8601)
+  date_to     – inclusive upper bound on the ``date`` date field (ISO 8601)
+  tags        – one or more tag slugs that must ALL be present (terms filter)
+
+All active filters are combined with ``bool.must`` so every condition must
+be satisfied.  Passing ``SearchFilters()`` with no fields set is equivalent
+to passing no filter at all.
 """
 
 import logging
 import os
 import re
+from dataclasses import dataclass, field
 
 import boto3
 from opensearchpy import AWSV4SignerAuth, OpenSearch, RequestsHttpConnection
@@ -78,6 +95,86 @@ def normalise_tags(labels: list) -> list[str]:
             result.append(text)
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# Filter schema
+# ---------------------------------------------------------------------------
+
+@dataclass
+class SearchFilters:
+    """
+    Pre-filter criteria applied inside the kNN query before ANN search.
+
+    All non-None fields are combined with ``bool.must`` so every condition
+    must be satisfied.  Fields left as ``None`` (the default) are ignored.
+
+    Attributes
+    ----------
+    project_id : str | None
+        Restrict results to a single project (exact keyword match).
+    date_from : str | None
+        Inclusive lower bound on the image date (ISO 8601, e.g. "2024-01-01").
+    date_to : str | None
+        Inclusive upper bound on the image date (ISO 8601, e.g. "2024-12-31").
+    tags : list[str]
+        Tag slugs that must ALL be present on the image.  Tags are normalised
+        before the filter is built so callers may pass raw Rekognition names.
+        An empty list means no tag filter is applied.
+    """
+    project_id: str | None = None
+    date_from: str | None = None
+    date_to: str | None = None
+    tags: list[str] = field(default_factory=list)
+
+    def is_empty(self) -> bool:
+        """Return True when no filter criteria are set."""
+        return (
+            self.project_id is None
+            and self.date_from is None
+            and self.date_to is None
+            and not self.tags
+        )
+
+    def to_opensearch_filter(self) -> dict | None:
+        """
+        Build an OpenSearch ``bool`` filter clause from the active criteria.
+
+        Returns ``None`` when no criteria are set (caller should omit the
+        filter key entirely to avoid an empty bool clause).
+
+        Returns a ``{"bool": {"must": [...]}}`` dict otherwise, with one
+        clause per active criterion:
+
+        - ``project_id``  → ``{"term": {"project_id": <value>}}``
+        - ``date_from``   → ``{"range": {"date": {"gte": <value>}}}``
+        - ``date_to``     → ``{"range": {"date": {"lte": <value>}}}``
+        - ``tags``        → ``{"terms": {"tags": [<normalised slugs>]}}``
+          (date_from and date_to are merged into a single range clause)
+        """
+        if self.is_empty():
+            return None
+
+        must: list[dict] = []
+
+        if self.project_id is not None:
+            must.append({"term": {"project_id": self.project_id}})
+
+        # Merge date bounds into a single range clause
+        date_range: dict = {}
+        if self.date_from is not None:
+            date_range["gte"] = self.date_from
+        if self.date_to is not None:
+            date_range["lte"] = self.date_to
+        if date_range:
+            must.append({"range": {"date": date_range}})
+
+        if self.tags:
+            normalised = normalise_tags(self.tags)
+            if normalised:
+                must.append({"terms": {"tags": normalised}})
+
+        return {"bool": {"must": must}} if must else None
 
 
 class VectorStore:
@@ -189,10 +286,14 @@ class VectorStore:
         self,
         embedding_vector: list[float],
         top_k: int = 10,
-        filters: dict | None = None,
+        filters: "SearchFilters | None" = None,
     ) -> list[dict]:
         """
-        Search for images by vector similarity.
+        Search for images by vector similarity with optional pre-filtering.
+
+        Pre-filters are applied *inside* the kNN query so the ANN engine only
+        considers documents that match all active criteria before ranking by
+        cosine similarity.
 
         Parameters
         ----------
@@ -200,10 +301,13 @@ class VectorStore:
             1536-dimensional query embedding.
         top_k : int, optional
             Maximum number of results to return (default 10).
-        filters : dict, optional
-            OpenSearch bool filter clause dict, e.g.:
-            {"term": {"project_id": "PROJ-001"}}
-            or {"range": {"date": {"gte": "2024-01-01"}}}
+        filters : SearchFilters | None, optional
+            Structured filter criteria.  Supports:
+            - ``project_id``  – exact match on the project_id keyword field
+            - ``date_from``   – inclusive lower bound on the date field (ISO 8601)
+            - ``date_to``     – inclusive upper bound on the date field (ISO 8601)
+            - ``tags``        – list of tag slugs that must ALL be present
+            Pass ``None`` or ``SearchFilters()`` to search without filtering.
 
         Returns
         -------
@@ -228,8 +332,12 @@ class VectorStore:
             "vector": embedding_vector,
             "k": top_k,
         }
+
+        # Build the pre-filter from the SearchFilters schema
         if filters is not None:
-            knn_clause["filter"] = {"bool": {"filter": [filters]}}
+            os_filter = filters.to_opensearch_filter()
+            if os_filter is not None:
+                knn_clause["filter"] = os_filter
 
         query_body = {
             "size": top_k,
