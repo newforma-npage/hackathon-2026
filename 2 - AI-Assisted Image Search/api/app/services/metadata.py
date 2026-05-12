@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 OPENSEARCH_HOST = os.environ.get("OPENSEARCH_HOST", "localhost")
 OPENSEARCH_PORT = int(os.environ.get("OPENSEARCH_PORT", "9200"))
-OPENSEARCH_INDEX = os.environ.get("OPENSEARCH_INDEX", "site-photos")
+# Match the index name used by the ingestion backend (vector_store.py default)
+OPENSEARCH_INDEX = os.environ.get("OPENSEARCH_INDEX", os.environ.get("VECTOR_INDEX_NAME", "visual-project-intelligence"))
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 # Fields to return from OpenSearch (avoids fetching the large embedding vector)
