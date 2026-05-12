@@ -906,9 +906,13 @@
       "date_taken": "2024-05-01T11:00:00-07:00",
       "taken_by": "Frank Morrison",
       "location": "Security Checkpoint Area",
-      "tags": [],
-      "ai_description": "People: Person. General: Plumbing, Factory. Material: Pipeline. Structure: Architecture, Building.",
+      "tags": ["duct", "hvac", "ductwork", "mechanical"],
+      "ai_description": "HVAC: Duct, Ductwork, Ventilation. People: Person. General: Plumbing, Factory. Material: Pipeline. Structure: Architecture, Building.",
       "ai_labels": [
+        "duct",
+        "hvac",
+        "ductwork",
+        "ventilation",
         "person",
         "plumbing",
         "pipeline",
@@ -917,6 +921,42 @@
         "factory"
       ],
       "ai_tags": [
+        {
+          "name": "Duct",
+          "slug": "duct",
+          "confidence": 99.5,
+          "category": "hvac",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "HVAC",
+          "slug": "hvac",
+          "confidence": 98.0,
+          "category": "hvac",
+          "parents": [],
+          "source": "rekognition"
+        },
+        {
+          "name": "Ductwork",
+          "slug": "ductwork",
+          "confidence": 97.5,
+          "category": "hvac",
+          "parents": [
+            "Duct"
+          ],
+          "source": "rekognition"
+        },
+        {
+          "name": "Ventilation",
+          "slug": "ventilation",
+          "confidence": 95.0,
+          "category": "hvac",
+          "parents": [
+            "Duct"
+          ],
+          "source": "rekognition"
+        },
         {
           "name": "Person",
           "slug": "person",
