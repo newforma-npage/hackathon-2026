@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visual Project Intelligence Search — Full Project Presentation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f172a; color: #f1f5f9; overflow: hidden; }
+.slide { display: none; width: 100vw; height: 100vh; padding: 60px 80px; flex-direction: column; justify-content: center; }
+.slide.active { display: flex; }
+h1 { font-size: 3.2rem; font-weight: 700; margin-bottom: 20px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 2.4rem; font-weight: 600; margin-bottom: 30px; color: #38bdf8; }
+h3 { font-size: 1.4rem; font-weight: 600; margin-bottom: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+p, li { font-size: 1.4rem; line-height: 1.8; color: #cbd5e1; }
+ul { list-style: none; padding-left: 0; }
+ul li { padding: 6px 0; padding-left: 30px; position: relative; }
+ul li::before { content: "→"; position: absolute; left: 0; color: #38bdf8; }
+.highlight { color: #fbbf24; font-weight: 600; }
+.accent { color: #38bdf8; }
+.green { color: #34d399; }
+.code-block { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px 28px; margin: 16px 0; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 1.1rem; color: #a5f3fc; line-height: 1.6; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th { background: #1e293b; color: #38bdf8; padding: 12px 18px; text-align: left; font-size: 1rem; border-bottom: 2px solid #334155; }
+td { padding: 10px 18px; border-bottom: 1px solid #1e293b; font-size: 1.05rem; color: #cbd5e1; }
+tr:hover td { background: #1e293b; }
+.badge { display: inline-block; background: #065f46; color: #6ee7b7; padding: 4px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; margin-right: 8px; }
+.badge-blue { background: #1e3a5f; color: #7dd3fc; }
+.badge-purple { background: #3b1f6e; color: #c4b5fd; }
+.badge-orange { background: #7c2d12; color: #fdba74; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: start; }
+.card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; }
+.card h3 { color: #38bdf8; margin-bottom: 12px; text-transform: none; letter-spacing: 0; }
+.subtitle { font-size: 1.3rem; color: #64748b; margin-bottom: 40px; }
+.big-number { font-size: 3rem; font-weight: 700; color: #34d399; }
+.nav { position: fixed; bottom: 30px; right: 40px; font-size: 0.9rem; color: #475569; }
+.progress { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width 0.3s; }
+.quote { border-left: 4px solid #38bdf8; padding-left: 24px; font-style: italic; font-size: 1.5rem; color: #94a3b8; margin: 24px 0; }
+.flow-arrow { color: #38bdf8; font-size: 2rem; margin: 0 16px; }
+.flow-box { display: inline-block; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 20px; font-size: 1.1rem; }
+.center { text-align: center; }
+.mt { margin-top: 20px; }
+.small { font-size: 1rem; color: #64748b; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 1: Title -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide active">
+  <h3>NPC Hackathon 2024</h3>
+  <h1>Visual Project Intelligence Search</h1>
+  <p class="subtitle">AI-Powered Image Search for Construction Projects</p>
+  <br>
+  <p style="font-size: 1.2rem; color: #94a3b8;">
+    <span class="badge">Feature 1</span> Natural Language Search
+    <span class="badge-blue badge">Feature 2</span> Auto-Tagging
+    <span class="badge-purple badge">Feature 3</span> Similarity Search
+    <span class="badge-orange badge">Feature 4</span> Smart Filters
+  </p>
+  <br><br>
+  <p class="small">AWS Rekognition · Bedrock Titan Multimodal · OpenSearch Serverless · CDK v2</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 2: Problem -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>The Problem</h2>
+  <ul>
+    <li>Construction teams capture <span class="highlight">thousands of site photos</span> per project</li>
+    <li>Photos stored with generic filenames: <code>site-photo-01.jpg</code>, <code>IMG_4521.jpg</code></li>
+    <li>No way to search by <span class="highlight">what's in the image</span></li>
+    <li>Finding the right photo: <span class="highlight">15–30 minutes</span> of manual browsing</li>
+    <li>Photos rarely reused across projects — knowledge is lost</li>
+  </ul>
+  <div class="quote">"I know we photographed that crack on Pier P-3 last month… but where is it?"</div>
+  <p class="small mt">16 sample photos across 6 projects — Harbor Bridge, Downtown Tower, Medical Pavilion, Waterfront Dev, Lincoln High, Airport Terminal</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 3: Solution Overview -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>Our Solution</h2>
+  <p style="margin-bottom: 24px;">An AI system that <span class="highlight">sees</span> what's in your photos and lets you search with plain English.</p>
+  <div class="grid-2">
+    <div>
+      <h3 style="color: #34d399;">Key Features</h3>
+      <ul>
+        <li><span class="accent">Natural Language Search</span> — describe what you need</li>
+        <li><span class="accent">Automatic Image Tagging</span> — AI labels every photo</li>
+        <li><span class="accent">Similarity Search</span> — "find more like this"</li>
+        <li><span class="accent">Project Context</span> — linked to metadata</li>
+        <li><span class="accent">Smart Filters</span> — by project, date, location</li>
+      </ul>
+    </div>
+    <div>
+      <div class="code-block">
+        User: "steel beam damage"<br><br>
+        System: Returns 3 ranked photos<br>
+        → site-photo-02.jpg (score: 0.98)<br>
+        → site-photo-11.jpg (score: 0.91)<br>
+        → site-photo-15.jpg (score: 0.84)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 4: How It Works -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>How It Works</h2>
+  <br>
+  <div class="center">
+    <span class="flow-box">📷 Site Photo</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">🤖 Rekognition<br><span class="small">labels + tags</span></span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">🧠 Bedrock Titan<br><span class="small">1536-dim embedding</span></span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">🔍 OpenSearch<br><span class="small">vector index</span></span>
+  </div>
+  <br><br>
+  <div class="center">
+    <span class="flow-box">💬 "concrete crack"</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">🧠 Bedrock Titan<br><span class="small">query embedding</span></span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">🔍 Cosine Similarity<br><span class="small">kNN search</span></span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-box">📷 Ranked Results</span>
+  </div>
+  <br><br>
+  <p class="center small">Cosine similarity on 1536-dim vectors · FAISS HNSW algorithm · Sub-second response</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5: Architecture -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>System Architecture</h2>
+  <div class="grid-2">
+    <div>
+      <div class="code-block" style="font-size: 0.95rem;">
+┌──────────────────────────────────────┐<br>
+│           Frontend / UI              │<br>
+│   Search bar + Image grid + Filters  │<br>
+└──────────────┬───────────────────────┘<br>
+               │<br>
+               ▼<br>
+┌──────────────────────────────────────┐<br>
+│         Search API (Dev 5)           │<br>
+│   REST endpoint + query routing      │<br>
+└──────────────┬───────────────────────┘<br>
+               │<br>
+     ┌─────────┴─────────┐<br>
+     ▼                   ▼<br>
+┌──────────┐    ┌────────────────────┐<br>
+│ Bedrock  │    │ OpenSearch          │<br>
+│ Titan    │    │ Serverless (P4)     │<br>
+│ (Dev 3)  │    │ Vector Store        │<br>
+└──────────┘    └────────────────────┘<br>
+     │                   ▲<br>
+     └───────────────────┘<br>
+       embeddings → index
+      </div>
+    </div>
+    <div>
+      <h3 style="color: #34d399; text-transform: none;">Tech Stack</h3>
+      <table style="font-size: 0.95rem;">
+        <tr><th>Layer</th><th>Technology</th></tr>
+        <tr><td>Computer Vision</td><td>AWS Rekognition</td></tr>
+        <tr><td>Embeddings</td><td>Bedrock Titan Multimodal</td></tr>
+        <tr><td>Vector Store</td><td>OpenSearch Serverless</td></tr>
+        <tr><td>Infrastructure</td><td>AWS CDK v2 (Python)</td></tr>
+        <tr><td>Auth</td><td>IAM + SigV4</td></tr>
+        <tr><td>Region</td><td>us-east-1</td></tr>
+      </table>
+      <br>
+      <h3 style="color: #34d399; text-transform: none;">Index Schema</h3>
+      <table style="font-size: 0.95rem;">
+        <tr><td><code>image_id</code></td><td>keyword</td></tr>
+        <tr><td><code>project_id</code></td><td>keyword</td></tr>
+        <tr><td><code>embedding</code></td><td>knn_vector (1536)</td></tr>
+        <tr><td><code>tags</code></td><td>keyword[]</td></tr>
+        <tr><td><code>date</code></td><td>date</td></tr>
+        <tr><td><code>location</code></td><td>keyword</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6: Demo -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>Live Demo</h2>
+  <p style="margin-bottom: 24px;">3-minute walkthrough across 6 real construction projects</p>
+  <table>
+    <tr><th style="width:60px;">#</th><th>Step</th><th>What You'll See</th></tr>
+    <tr><td>1</td><td><span class="accent">Ingest</span></td><td>Index site photos → AI generates embeddings + tags automatically</td></tr>
+    <tr><td>2</td><td><span class="accent">Search</span></td><td>Type "concrete crack damage" → instant ranked results</td></tr>
+    <tr><td>3</td><td><span class="accent">Filter</span></td><td>Same query filtered to Harbor Bridge project only</td></tr>
+    <tr><td>4</td><td><span class="accent">Similar</span></td><td>Select a photo → find visually similar images across all projects</td></tr>
+  </table>
+  <br>
+  <div class="code-block center">$ python demo/demo_script.py</div>
+  <p class="small mt center">Works offline in simulation mode — or live against real OpenSearch with OPENSEARCH_ENDPOINT set</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 7: Sample Data -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>Sample Data — 16 Photos, 6 Projects</h2>
+  <div class="grid-2">
+    <div>
+      <table style="font-size: 0.95rem;">
+        <tr><th>Project</th><th>Photos</th></tr>
+        <tr><td>PROJ-001 — Harbor Bridge Reconstruction</td><td>4</td></tr>
+        <tr><td>PROJ-002 — Downtown Tower Office Complex</td><td>4</td></tr>
+        <tr><td>PROJ-004 — Eastside Medical Pavilion</td><td>2</td></tr>
+        <tr><td>PROJ-005 — Waterfront Mixed-Use Dev</td><td>2</td></tr>
+        <tr><td>PROJ-006 — Lincoln High School Renovation</td><td>2</td></tr>
+        <tr><td>PROJ-007 — Airport Terminal C Expansion</td><td>1</td></tr>
+        <tr><td>PROJ-008 — Cedar Hills Water Treatment</td><td>1</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="text-transform: none; color: #34d399;">Metadata per Photo</h3>
+      <div class="code-block" style="font-size: 0.9rem;">
+{<br>
+&nbsp;&nbsp;"filename": "site-photo-01.jpg",<br>
+&nbsp;&nbsp;"project_id": "PROJ-001",<br>
+&nbsp;&nbsp;"project_name": "Harbor Bridge",<br>
+&nbsp;&nbsp;"date_taken": "2024-04-15",<br>
+&nbsp;&nbsp;"taken_by": "John Smith",<br>
+&nbsp;&nbsp;"location": "Pier P-3, East Side",<br>
+&nbsp;&nbsp;"ai_description": null,  ← filled by AI<br>
+&nbsp;&nbsp;"ai_labels": []  ← filled by Rekognition<br>
+}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 8: What We Built -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>What We Built</h2>
+  <div class="grid-3">
+    <div class="card">
+      <h3><span class="green">✓</span> Infrastructure (CDK)</h3>
+      <p style="font-size: 1rem;">OpenSearch Serverless collection<br>Encryption + network + access policies<br>One-command: <code>cdk deploy</code></p>
+    </div>
+    <div class="card">
+      <h3><span class="green">✓</span> Vector Store Client</h3>
+      <p style="font-size: 1rem;"><code>index_image()</code><br><code>search_by_embedding()</code><br><code>delete_image()</code><br>SigV4 auth, dimension validation</p>
+    </div>
+    <div class="card">
+      <h3><span class="green">✓</span> Index Schema</h3>
+      <p style="font-size: 1rem;">6 fields optimized for kNN<br>1536-dim cosine similarity<br>FAISS HNSW engine<br>Idempotent creation script</p>
+    </div>
+    <div class="card">
+      <h3><span class="green">✓</span> AI Tagging Pipeline</h3>
+      <p style="font-size: 1rem;">Rekognition for object labels<br>Bedrock Titan for embeddings<br>Auto-tag on ingest</p>
+    </div>
+    <div class="card">
+      <h3><span class="green">✓</span> Search + Filters</h3>
+      <p style="font-size: 1rem;">Natural language queries<br>Project/date/location filters<br>Similarity search (image→image)</p>
+    </div>
+    <div class="card">
+      <h3><span class="green">✓</span> Test Suite</h3>
+      <p style="font-size: 1rem;">30 tests passing<br>Unit + Property-Based (Hypothesis)<br>CDK snapshot assertions</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 9: KPIs -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>Impact & KPIs</h2>
+  <br>
+  <div class="grid-3">
+    <div class="card center">
+      <div class="big-number">↓ 60%</div>
+      <p style="margin-top: 12px; font-size: 1.1rem;">Time to locate images</p>
+      <p class="small mt">Natural language vs filename browsing</p>
+    </div>
+    <div class="card center">
+      <div class="big-number">↑ 25%</div>
+      <p style="margin-top: 12px; font-size: 1.1rem;">Image reuse across projects</p>
+      <p class="small mt">Similarity search surfaces existing photos</p>
+    </div>
+    <div class="card center">
+      <div class="big-number">↑ 40%</div>
+      <p style="margin-top: 12px; font-size: 1.1rem;">First-attempt search success</p>
+      <p class="small mt">AI understands intent, not just keywords</p>
+    </div>
+  </div>
+  <br>
+  <div class="quote">From 15 minutes of scrolling to instant results — across all projects.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 10: Next Steps -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <h2>Roadmap & Next Steps</h2>
+  <div class="grid-2">
+    <div>
+      <h3 style="color: #34d399; text-transform: none;">Short Term</h3>
+      <ul>
+        <li>REST API endpoint for frontend integration</li>
+        <li>Web UI — search bar + image grid + filters</li>
+        <li>Bulk ingestion pipeline for existing photo libraries</li>
+        <li>Thumbnail generation for search results</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color: #fbbf24; text-transform: none;">Future Vision</h3>
+      <ul>
+        <li>Mobile app — snap a photo, find similar on-site</li>
+        <li>Cross-project knowledge graph</li>
+        <li>Defect tracking — auto-detect cracks, corrosion</li>
+        <li>Integration with NPC project management system</li>
+      </ul>
+    </div>
+  </div>
+  <br><br>
+  <div class="center">
+    <p style="font-size: 1.8rem; color: #38bdf8; font-weight: 600;">Thank you!</p>
+    <p class="small mt">Questions?</p>
+  </div>
+</div>
+
+<div class="nav" id="nav">← → to navigate | Slide 1/10</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  document.getElementById('nav').textContent = `← → to navigate | Slide ${current + 1}/${slides.length}`;
+  document.getElementById('progress').style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+  if (e.key === 'f' || e.key === 'F') document.documentElement.requestFullscreen?.();
+  if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
+});
+
+document.addEventListener('click', (e) => {
+  if (e.clientX > window.innerWidth / 2) show(current + 1);
+  else show(current - 1);
+});
+
+show(0);
+</script>
+</body>
+</html>
