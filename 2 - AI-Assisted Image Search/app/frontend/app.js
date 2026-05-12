@@ -200,6 +200,15 @@ async function handleSearch() {
     return;
   }
 
+  // 🦆 Easter egg: "duck" → suggest "duct"
+  if (query.toLowerCase() === 'duck') {
+    showEmpty(true, '🦆 Quack!', 'Did you mean "duct"? This is a construction site, not a pond!');
+    photoGrid.innerHTML = '';
+    if (resultsInfo) resultsInfo.innerHTML = '';
+    showLoading(false);
+    return;
+  }
+
   searchBtn.disabled = true;
   searchBtn.textContent = '...';
   showLoading(true, `Searching for "${query}"...`);
@@ -253,6 +262,7 @@ async function handleSearch() {
 
 function handleClear() {
   searchInput.value   = '';
+  searchInput.placeholder = 'Search photos by content, location, or project...';
   filterProject.value = '';
   filterPhotog.value  = '';
   resultsInfo.innerHTML = '';
@@ -391,6 +401,8 @@ function handleFindSimilar() {
 
   // Close modal and show results
   closeModal();
+  searchInput.value = '';
+  searchInput.placeholder = `Similar to ${currentPhoto.filename} — clear to search again`;
   renderPhotos(scored);
   const tagList = [...photoLabels].slice(0, 5).join(', ');
   if (resultsInfo) {
@@ -398,6 +410,7 @@ function handleFindSimilar() {
       <button class="results-clear-link" id="results-clear">Show all</button>`;
     document.getElementById('results-clear')?.addEventListener('click', () => {
       resultsInfo.innerHTML = '';
+      searchInput.placeholder = 'Search photos by content, location, or project...';
       renderPhotos(allPhotos);
     });
   }
