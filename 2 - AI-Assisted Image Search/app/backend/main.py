@@ -44,6 +44,40 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 rekognition = boto3.client("rekognition", region_name=AWS_REGION)
 bedrock_client = BedrockEmbeddingClient(region=AWS_REGION)
 
+# DynamoDB table written by the Lambda ingestion function.
+# Optional — if not set, the app skips the ai_indexed flag update.
+PHOTO_TABLE_NAME = os.getenv("PHOTO_TABLE_NAME")
+_ddb_table = None
+
+
+def get_ddb_table():
+    """Lazy-init the DynamoDB table resource (only if PHOTO_TABLE_NAME is set)."""
+    global _ddb_table
+    if _ddb_table is None and PHOTO_TABLE_NAME:
+        ddb = boto3.resource("dynamodb", region_name=AWS_REGION)
+        _ddb_table = ddb.Table(PHOTO_TABLE_NAME)
+    return _ddb_table
+
+
+def mark_ai_indexed(project_id: str, image_path: str) -> None:
+    """
+    Flip ai_indexed=True on the DynamoDB record written by the Lambda.
+    Silently skips if PHOTO_TABLE_NAME is not configured.
+    """
+    table = get_ddb_table()
+    if table is None:
+        return
+    try:
+        table.update_item(
+            Key={"project_id": project_id, "image_path": image_path},
+            UpdateExpression="SET ai_indexed = :val",
+            ExpressionAttributeValues={":val": True},
+        )
+    except Exception as exc:
+        # Non-fatal — log and continue; the vector store is the source of truth
+        import logging
+        logging.getLogger(__name__).warning("Could not update ai_indexed in DynamoDB: %s", exc)
+
 # ── Vector store (lazy init) ──────────────────────────────────────────────────
 VECTOR_BACKEND = os.getenv("VECTOR_BACKEND", "opensearch").lower()  # "opensearch" | "pgvector"
 
@@ -251,6 +285,10 @@ def ingest_photo(filename: str):
         }
 
     save_metadata(data)
+    # Flip ai_indexed flag in DynamoDB (written by the Lambda ingestion function)
+    project_id = photo.get("project_id", "")
+    image_path = f"{project_id}/{filename}" if project_id else filename
+    mark_ai_indexed(project_id, image_path)
     return {
         "filename": filename,
         "photo_id": pv.photo_id,
@@ -284,6 +322,9 @@ def ingest_all_photos():
             image_bytes = path.read_bytes()
             pv = _ingest_photo(photo, image_bytes)
             get_vector_store().upsert(pv)
+            # Flip ai_indexed in DynamoDB
+            pid = photo.get("project_id", "")
+            mark_ai_indexed(pid, f"{pid}/{photo['filename']}" if pid else photo["filename"])
             results.append({
                 "filename": photo["filename"],
                 "photo_id": pv.photo_id,

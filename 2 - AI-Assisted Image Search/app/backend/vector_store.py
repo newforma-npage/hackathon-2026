@@ -447,9 +447,7 @@ class PgVectorStore:
         where_clauses, params = _build_pgvector_filters(filters)
         where_sql = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
 
-        # Set ef_search for this session to balance recall vs latency
         sql = f"""
-            SET LOCAL hnsw.ef_search = 100;
             SELECT photo_id,
                    1 - (embedding <=> %s::vector) AS score
             FROM   photo_embeddings
@@ -460,6 +458,9 @@ class PgVectorStore:
         all_params = [query_vector] + params + [query_vector, k]
 
         with self._conn.cursor() as cur:
+            # SET LOCAL must be a separate call — psycopg2 does not support
+            # multiple statements in a single execute()
+            cur.execute("SET LOCAL hnsw.ef_search = 100")
             cur.execute(sql, all_params)
             rows = cur.fetchall()
 

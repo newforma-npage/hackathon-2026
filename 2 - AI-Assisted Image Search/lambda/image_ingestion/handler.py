@@ -51,16 +51,23 @@ def _parse_project_id(s3_key: str) -> str:
 
 def _build_record(bucket: str, key: str, event_time: str) -> dict:
     """Build the DynamoDB item from S3 event fields."""
+    import uuid as _uuid
     project_id = _parse_project_id(key)
     filename = key.rsplit("/", 1)[-1]
+
+    # Generate a deterministic photo_id from the filename so the FastAPI
+    # enrichment pipeline (which uses uuid5(NAMESPACE_URL, filename)) can
+    # look up the same record without a separate key-translation step.
+    photo_id = str(_uuid.uuid5(_uuid.NAMESPACE_URL, filename))
 
     return {
         "project_id": project_id,
         "image_path": key,          # sort key — unique per image
+        "photo_id": photo_id,       # matches the vector store key used by main.py
         "bucket_name": bucket,
         "filename": filename,
         "timestamp": event_time,    # ISO-8601 string from S3 event
-        "ai_indexed": False,        # will be updated by the AI enrichment step
+        "ai_indexed": False,        # will be set True by the AI enrichment step
     }
 
 

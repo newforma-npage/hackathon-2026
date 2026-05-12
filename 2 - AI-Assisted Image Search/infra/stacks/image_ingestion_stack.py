@@ -46,6 +46,8 @@ class ImageIngestionStack(Stack):
         )
 
         # ── Lambda function ───────────────────────────────────────────────────
+        # NOTE: code path is relative to the infra/ directory.
+        # Run `cdk deploy` from within infra/, not the repo root.
         ingest_fn = lambda_.Function(
             self,
             "ImageIngestionFunction",

@@ -96,11 +96,22 @@ class TestBuildRecord:
         assert rec["filename"] == "photo.jpg"
         assert rec["timestamp"] == "2024-04-15T08:30:00Z"
         assert rec["ai_indexed"] is False
+        # photo_id must be present and match the uuid5 the FastAPI backend generates
+        import uuid
+        expected_photo_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "photo.jpg"))
+        assert rec["photo_id"] == expected_photo_id
 
     def test_ai_indexed_defaults_false(self):
         from handler import _build_record
         rec = _build_record("b", "PROJ-003/img.png", "2024-01-01T00:00:00Z")
         assert rec["ai_indexed"] is False
+
+    def test_photo_id_deterministic(self):
+        """Same filename always produces the same photo_id."""
+        from handler import _build_record
+        r1 = _build_record("b", "PROJ-001/photo.jpg", "2024-01-01T00:00:00Z")
+        r2 = _build_record("b2", "PROJ-002/photo.jpg", "2024-06-01T00:00:00Z")
+        assert r1["photo_id"] == r2["photo_id"]  # same filename → same id
 
 
 class TestLambdaHandler:
@@ -118,6 +129,7 @@ class TestLambdaHandler:
         assert item["filename"] == "site-photo-01.jpg"
         assert item["bucket_name"] == "npc-images"
         assert item["ai_indexed"] is False
+        assert "photo_id" in item  # must be present for FastAPI enrichment linkage
 
     def test_url_encoded_key_decoded(self, ddb_table):
         table, h = ddb_table
