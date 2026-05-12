@@ -25,6 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .embeddings import BedrockEmbeddingClient, CURRENT_MODEL_VERSION
+from .labeling import RekognitionLabeler
 from .vector_store import (
     PhotoVector,
     SearchFilters,
@@ -41,7 +42,7 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 # ── AWS clients ───────────────────────────────────────────────────────────────
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
-rekognition = boto3.client("rekognition", region_name=AWS_REGION)
+rekognition_labeler = RekognitionLabeler(region=AWS_REGION)
 bedrock_client = BedrockEmbeddingClient(region=AWS_REGION)
 
 # DynamoDB table written by the Lambda ingestion function.
@@ -131,48 +132,27 @@ def find_photo(data: dict, filename: str) -> Optional[dict]:
     return None
 
 
-# ── Rekognition helpers ───────────────────────────────────────────────────────
-
-def rekognition_labels(image_bytes: bytes) -> tuple[list[dict], str]:
-    """
-    Call Rekognition DetectLabels.
-    Returns (label_dicts, ai_description).
-    Each label_dict: {name, confidence, parents}
-    """
-    resp = rekognition.detect_labels(
-        Image={"Bytes": image_bytes},
-        MaxLabels=20,
-        MinConfidence=70,
-    )
-    labels = [
-        {
-            "name": lbl["Name"],
-            "confidence": round(lbl["Confidence"], 2),
-            "parents": [p["Name"] for p in lbl.get("Parents", [])],
-        }
-        for lbl in resp["Labels"]
-    ]
-    description = ", ".join(lbl["name"] for lbl in labels[:8])
-    return labels, description
-
-
 # ── Ingestion helper ──────────────────────────────────────────────────────────
 
 def _ingest_photo(photo: dict, image_bytes: bytes) -> PhotoVector:
     """
-    Run Rekognition + Bedrock on image_bytes, update the photo dict in-place,
-    and return a PhotoVector ready for the vector store.
+    Run Rekognition labeling + Bedrock embedding on image_bytes.
+    Updates the photo dict in-place and returns a PhotoVector for the vector store.
+    Raises if the image is flagged for moderation.
     """
-    # 1. Rekognition labels
-    labels, description = rekognition_labels(image_bytes)
-    label_names = [lbl["name"].lower() for lbl in labels]
+    # 1. Rekognition — labels + moderation check (concurrent internally)
+    labeling = rekognition_labeler.label(image_bytes)
+
+    if labeling.is_flagged:
+        raise ValueError(
+            f"Image flagged for moderation: {', '.join(labeling.moderation_flags)}"
+        )
 
     # 2. Bedrock multimodal embedding (image)
     embedding = bedrock_client.embed_image(image_bytes)
 
-    # 3. Update in-memory metadata record
-    photo["ai_labels"] = label_names
-    photo["ai_description"] = description
+    # 3. Update in-memory metadata record with full tag schema
+    photo.update(labeling.to_metadata_patch())
     photo["index_version"] = CURRENT_MODEL_VERSION
     photo["indexed_at"] = datetime.utcnow().isoformat()
 
@@ -196,8 +176,8 @@ def _ingest_photo(photo: dict, image_bytes: bytes) -> PhotoVector:
         date_taken=date_taken,
         location=photo.get("location"),
         taken_by=photo.get("taken_by"),
-        ai_labels=label_names,
-        ai_description=description,
+        ai_labels=labeling.ai_labels,
+        ai_description=labeling.description,
         index_version=CURRENT_MODEL_VERSION,
         indexed_at=datetime.utcnow(),
     )
@@ -456,8 +436,8 @@ async def similarity_search(file: UploadFile = File(...)):
     except Exception as exc:
         # Fallback: Rekognition label overlap
         try:
-            upload_labels_raw, _ = rekognition_labels(image_bytes)
-            upload_labels = {lbl["name"].lower() for lbl in upload_labels_raw}
+            fallback_result = rekognition_labeler.label(image_bytes)
+            upload_labels = set(fallback_result.ai_labels)
         except Exception as rek_exc:
             raise HTTPException(status_code=500, detail=f"Both vector and Rekognition failed: {rek_exc}")
 
