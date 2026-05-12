@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  KPI Instrumentation — POST /events endpoint for Visual Project Intelligence Search.
+  Emits ImageReuseEvent and FirstResultRelevance metrics to CloudWatch.
+  Requirements: 10.1, 10.2, 10.3, 10.4
+
+Parameters:
+  CognitoUserPoolArn:
+    Type: String
+    Description: ARN of the Cognito User Pool used for API authorization.
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 128
+
+Resources:
+  # --------------------------------------------------------------------------
+  # API Gateway
+  # --------------------------------------------------------------------------
+  KpiApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref CognitoUserPoolArn
+
+  # --------------------------------------------------------------------------
+  # Lambda Function
+  # --------------------------------------------------------------------------
+  KpiEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: kpi-events-handler
+      Handler: events_handler/handler.handler
+      CodeUri: .
+      Environment:
+        Variables:
+          CLOUDWATCH_NAMESPACE: VisualProjectIntelligenceSearch
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cloudwatch:PutMetricData
+              Resource: "*"
+      Events:
+        PostEvents:
+          Type: Api
+          Properties:
+            RestApiId: !Ref KpiApi
+            Path: /events
+            Method: POST
+
+Outputs:
+  KpiEventsApi:
+    Description: API Gateway endpoint URL for the /events route
+    Value: !Sub "https://${KpiApi}.execute-api.${AWS::Region}.amazonaws.com/prod/events"
+  KpiEventsFunctionArn:
+    Description: ARN of the KPI Events Lambda function
+    Value: !GetAtt KpiEventsFunction.Arn
