@@ -111,7 +111,7 @@ sequenceDiagram
     IngestionService->>Rekognition: detectLabels(imageBytes, minConfidence=70)
     Rekognition-->>IngestionService: [{label, confidence, parents}...]
     IngestionService->>BedrockEmbeddings: embedImage(imageBytes)
-    BedrockEmbeddings-->>IngestionService: embeddingVector[1536]
+    BedrockEmbeddings-->>IngestionService: embeddingVector[1024]
     IngestionService->>MetadataEnrichment: enrich(photo, labels, vector)
     MetadataEnrichment-->>IngestionService: EnrichedPhoto
     IngestionService->>VectorStore: upsert(photoId, vector, metadata)
@@ -133,7 +133,7 @@ sequenceDiagram
     User->>SearchUI: Upload reference image
     SearchUI->>QueryService: POST /search/similar {imageBytes, filters}
     QueryService->>BedrockEmbeddings: embedImage(imageBytes)
-    BedrockEmbeddings-->>QueryService: queryVector[1536]
+    BedrockEmbeddings-->>QueryService: queryVector[1024]
     QueryService->>VectorStore: knnSearch(queryVector, k=50, filters)
     VectorStore-->>QueryService: [{photoId, cosineSimilarity}...]
     QueryService->>MetadataDB: batchGetPhotoMetadata([photoIds])
@@ -263,7 +263,7 @@ END STRUCTURE
 STRUCTURE EnrichedPhoto EXTENDS RawPhoto
   aiLabels:       List<Label>      // Rekognition output
   aiDescription:  String           // generated natural-language description
-  embeddingVector: List<Float>     // 1536-dimension Bedrock embedding
+  embeddingVector: List<Float>     // 1024-dimension Bedrock multimodal embedding (Titan Multimodal v1)
   indexedAt:      DateTime         // when AI indexing completed
   indexVersion:   Integer          // embedding model version
 END STRUCTURE
@@ -652,7 +652,7 @@ response ← queryService.searchByText(request)
 
 ## Correctness Properties
 
-- **Embedding Consistency**: For any image I, `embedImage(I)` always returns a vector of exactly 1536 dimensions.
+- **Embedding Consistency**: For any image I, `embedImage(I)` always returns a vector of exactly 1024 dimensions (Titan Multimodal v1). Text queries use Titan Text v2 and return 1536 dimensions.
 - **Label Confidence Threshold**: For all labels L stored in an `EnrichedPhoto`, `L.confidence >= 70.0`.
 - **Search Monotonicity**: For any query Q, adding more restrictive filters to a search request never increases `totalCount`.
 - **Score Bounds**: For all `SearchResult` R returned by any search, `0.0 <= R.score <= 1.0`.
