@@ -14,8 +14,12 @@ OPENSEARCH_ENDPOINT
 AWS_REGION
     AWS region used for both Bedrock and OpenSearch clients.  Defaults to
     ``us-east-1`` if not set.
+NPC_API_BASE_URL
+    Base URL of the NPC Project API for project context enrichment
+    (e.g. ``https://api.npc.internal``).  If empty or unset, project context
+    enrichment is skipped.
 
-Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 10.1, 10.4
+Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 8.1, 8.2, 8.3, 8.4, 10.1, 10.4
 """
 
 from __future__ import annotations
@@ -33,6 +37,12 @@ from requests_aws4auth import AWS4Auth
 from search_handler.bedrock import BedrockUnavailableError, embed_query_text
 from search_handler.opensearch_client import OpenSearchUnavailableError, run_ann_search
 from search_handler.query_builder import build_knn_query
+
+# Project context enrichment (P3)
+try:
+    from project_enrichment.enricher import enrich_results
+except ImportError:  # pragma: no cover
+    enrich_results = None  # type: ignore[assignment]
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -221,14 +231,24 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
         )
 
     # ------------------------------------------------------------------
-    # 5. Publish latency metric
+    # 5. Enrich results with project context (P3)
+    # ------------------------------------------------------------------
+    npc_api_base_url: str = os.environ.get("NPC_API_BASE_URL", "")
+    if npc_api_base_url and results and enrich_results is not None:
+        try:
+            results = enrich_results(results, npc_api_base_url)
+        except Exception as exc:
+            logger.warning("Project context enrichment failed: %s", exc)
+
+    # ------------------------------------------------------------------
+    # 6. Publish latency metric
     # ------------------------------------------------------------------
     elapsed_ms = (time.monotonic() - start_time) * 1000
     logger.info("Search completed in %.1f ms, %d result(s)", elapsed_ms, len(results))
     _put_latency_metric(elapsed_ms, project_id)
 
     # ------------------------------------------------------------------
-    # 6. Build response
+    # 7. Build response
     # ------------------------------------------------------------------
     if not results:
         return _make_response(
