@@ -582,9 +582,13 @@ body {
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   margin-bottom: 24px;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 10px;
+}
+
+.analyze-progress.visible {
+  display: flex;
 }
 
 .progress-bar-track {

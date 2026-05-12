@@ -16,6 +16,7 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"
 
 [tool.uv]
 python = "3.12"

@@ -30,7 +30,7 @@
       </div>
       <nav class="header-nav">
         <span class="nav-badge" id="stats-badge">Loading...</span>
-        <span class="version-badge">v1.1.0</span>
+        <span class="version-badge">v1.1.2</span>
       </nav>
     </div>
   </header>
@@ -113,12 +113,12 @@
   <main class="main">
     <div class="results-info" id="results-info" aria-live="polite"></div>
 
-    <!-- Analyze Progress -->
-    <div class="analyze-progress" id="analyze-progress" hidden>
+    <!-- Analyze Progress (hidden by CSS, shown only during analysis) -->
+    <div class="analyze-progress" id="analyze-progress">
       <div class="progress-bar-track">
         <div class="progress-bar-fill" id="progress-bar-fill"></div>
       </div>
-      <p id="progress-label">Analyzing photos with AWS Rekognition...</p>
+      <p id="progress-label">Running AI analysis...</p>
     </div>
 
     <!-- Loading State removed -->

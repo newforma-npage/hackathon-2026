@@ -60,12 +60,13 @@ from typing import Any, Optional
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Path setup — allow importing the root-level vector_store.py without
-# installing the project as a package.
+# Path setup — add the project root (2 - AI-Assisted Image Search/) to
+# sys.path so we can import the root-level vector_store.py.
+# Uses Path(__file__).resolve() so this works regardless of cwd.
 # ---------------------------------------------------------------------------
-_PROJECT_ROOT = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..")
-)
+from pathlib import Path as _Path
+
+_PROJECT_ROOT = str(_Path(__file__).resolve().parent.parent.parent)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 

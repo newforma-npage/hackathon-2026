@@ -1,39 +1,36 @@
 """
-Search core adapter — delegates to the shared OpenSearchVectorStore from
-app/backend/vector_store.py.
+Search core adapter — delegates to the root-level VectorStore (vector_store.py).
 
-The vector store performs a k-NN cosine similarity search against the
-`visual-project-intelligence` OpenSearch index populated by the ingestion
-pipeline (app/backend/main.py + lambda/image_ingestion/handler.py).
+The VectorStore performs a k-NN cosine similarity search against the
+``images`` OpenSearch index populated by the ingestion pipeline.
 
-Environment variables (same as the ingestion backend):
-  OPENSEARCH_HOST       OpenSearch domain endpoint
-  OPENSEARCH_USER       HTTP basic auth username  (optional)
-  OPENSEARCH_PASS       HTTP basic auth password  (optional)
-  VECTOR_INDEX_NAME     Index name (default: visual-project-intelligence)
+Environment variables:
+  OPENSEARCH_ENDPOINT   OpenSearch Serverless collection endpoint URL
+  AWS_REGION            AWS region (default: us-east-1)
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Path setup — allow importing from app/backend without installing as a package
+# Path setup — add the project root (2 - AI-Assisted Image Search/) to
+# sys.path so we can import the root-level vector_store.py.
+# Uses Path(__file__).resolve() so this works regardless of cwd.
 # ---------------------------------------------------------------------------
 
-_BACKEND_DIR = os.path.join(
-    os.path.dirname(__file__),          # api/app/services/
-    "..", "..", "..",                    # → api/
-    "..", "app",                        # → 2 - AI-Assisted Image Search/app/
+_PROJECT_ROOT = str(
+    Path(__file__).resolve().parent.parent.parent.parent
 )
-_BACKEND_DIR = os.path.normpath(_BACKEND_DIR)
-if _BACKEND_DIR not in sys.path:
-    sys.path.insert(0, _BACKEND_DIR)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
 
 class SearchCoreError(Exception):
@@ -41,63 +38,27 @@ class SearchCoreError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Lazy-initialised vector store singleton
+# Lazy-initialised VectorStore singleton
 # ---------------------------------------------------------------------------
 
 _vector_store = None
 
 
 def _get_vector_store():
-    """Return a shared OpenSearchVectorStore instance (created on first call)."""
+    """Return a shared VectorStore instance (created on first call)."""
     global _vector_store
     if _vector_store is None:
         try:
-            from backend.vector_store import OpenSearchVectorStore  # type: ignore
-            _vector_store = OpenSearchVectorStore()
-            logger.info("OpenSearchVectorStore initialised (host=%s)", os.getenv("OPENSEARCH_HOST"))
+            from vector_store import VectorStore  # type: ignore  # root-level module
+            _vector_store = VectorStore()
+            logger.info(
+                "VectorStore initialised (endpoint=%s)",
+                os.getenv("OPENSEARCH_ENDPOINT", "<not set>"),
+            )
         except Exception as exc:
-            logger.error("Failed to initialise OpenSearchVectorStore: %s", exc)
+            logger.error("Failed to initialise VectorStore: %s", exc)
             raise SearchCoreError(f"Vector store unavailable: {exc}") from exc
     return _vector_store
-
-
-# ---------------------------------------------------------------------------
-# Internal search call
-# ---------------------------------------------------------------------------
-
-async def _call_search_core(
-    embedding: List[float],
-    top_k: int,
-    project_id: Optional[str],
-) -> List[dict]:
-    """
-    Delegate to OpenSearchVectorStore.knn_search().
-
-    Returns a list of dicts: [{"image_id": str, "similarity_score": float}, ...]
-    """
-    try:
-        from backend.vector_store import SearchFilters  # type: ignore
-    except ImportError as exc:
-        raise SearchCoreError(f"Could not import vector_store: {exc}") from exc
-
-    filters = SearchFilters(
-        project_ids=[project_id] if project_id else None,
-    )
-
-    # knn_search is synchronous (opensearch-py uses blocking HTTP); run it
-    # directly — the FastAPI route is already async so this is fine for now.
-    # For high-concurrency deployments, wrap in run_in_executor.
-    import asyncio
-    loop = asyncio.get_event_loop()
-    candidates = await loop.run_in_executor(
-        None,
-        lambda: _get_vector_store().knn_search(embedding, k=top_k, filters=filters),
-    )
-
-    return [
-        {"image_id": c.photo_id, "similarity_score": round(c.score, 4)}
-        for c in candidates
-    ]
 
 
 # ---------------------------------------------------------------------------
@@ -111,7 +72,10 @@ async def run_similarity_search(
     request_id: str,
 ) -> List[dict]:
     """
-    Invoke the OpenSearch vector store and return raw results.
+    Embed → ANN search via the root VectorStore.
+
+    Delegates to ``VectorStore.search_by_embedding()``, which accepts an
+    optional ``filters`` dict for project-level pre-filtering.
 
     Returns:
         List of dicts with keys ``image_id`` (str) and ``similarity_score`` (float).
@@ -119,20 +83,49 @@ async def run_similarity_search(
     Raises:
         SearchCoreError: if the vector store raises any exception.
     """
+    # Build an optional project filter using the SearchFilters dataclass
+    # that VectorStore.search_by_embedding() expects.
     try:
-        results = await _call_search_core(embedding, top_k, project_id)
-        logger.debug(
-            "Search core returned %d results",
-            len(results),
-            extra={"request_id": request_id},
+        from vector_store import SearchFilters  # type: ignore  # root-level module
+    except ImportError as exc:
+        raise SearchCoreError(f"Could not import SearchFilters: {exc}") from exc
+
+    filters: Optional[SearchFilters] = None
+    if project_id:
+        filters = SearchFilters(project_id=project_id)
+
+    try:
+        # search_by_embedding is synchronous (opensearch-py uses blocking HTTP).
+        # Run it in the default thread pool so we don't block the event loop.
+        loop = asyncio.get_running_loop()
+        raw = await loop.run_in_executor(
+            None,
+            lambda: _get_vector_store().search_by_embedding(
+                embedding, top_k=top_k, filters=filters
+            ),
         )
-        return results
     except SearchCoreError:
         raise
     except Exception as exc:
         logger.error(
-            "Search core raised unexpected error: %s",
+            "VectorStore.search_by_embedding raised: %s",
             exc,
             extra={"request_id": request_id},
         )
         raise SearchCoreError(str(exc)) from exc
+
+    # Normalise field names: VectorStore returns "score", route expects "similarity_score"
+    results = [
+        {
+            "image_id": r["image_id"],
+            "similarity_score": round(float(r.get("score") or 0.0), 4),
+        }
+        for r in raw
+    ]
+
+    logger.debug(
+        "Search core returned %d results",
+        len(results),
+        extra={"request_id": request_id},
+    )
+    return results

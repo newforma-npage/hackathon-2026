@@ -84,7 +84,6 @@ async function apiFetch(path, options = {}) {
 
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  analyzeProgress.hidden = true;
   loadFilters();
   loadAllPhotos();
   bindEvents();
@@ -247,9 +246,9 @@ function handleClear() {
 async function handleAnalyzeAll() {
   analyzeAllBtn.disabled = true;
   analyzeAllBtn.textContent = 'Analyzing...';
-  analyzeProgress.hidden = false;
+  analyzeProgress.classList.add('visible');
   progressFill.style.width = '0%';
-  progressLabel.textContent = 'Starting AWS Rekognition + Bedrock analysis...';
+  progressLabel.textContent = 'Running AI analysis on all images...';
 
   try {
     let fakeProgress = 0;
@@ -279,7 +278,7 @@ async function handleAnalyzeAll() {
         <path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/>
       </svg>
       Analyze All with AI`;
-    setTimeout(() => { analyzeProgress.hidden = true; }, 3000);
+    setTimeout(() => { analyzeProgress.classList.remove('visible'); }, 3000);
   }
 }
 
@@ -509,17 +508,21 @@ function renderModalInfo(photo) {
     ? tags.map(t => `<span class="tag tag-cyan">${escHtml(t)}</span>`).join('')
     : '';
 
-  // AI label confidence bars — only if labels are objects with {name, confidence}
-  const labels = (photo.ai_labels || []).filter(l => typeof l === 'object' && l.name);
-  modalLabels.innerHTML = labels.length
+  // AI label confidence bars — use ai_tags (has confidence) or ai_labels (objects)
+  const aiTags = photo.ai_tags || [];
+  const labelsWithConfidence = aiTags.length
+    ? aiTags
+    : (photo.ai_labels || []).filter(l => typeof l === 'object' && l.name);
+
+  modalLabels.innerHTML = labelsWithConfidence.length
     ? `<div style="font-size:11px;font-weight:700;color:var(--turquoise);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">AI Labels</div>` +
-      labels.slice(0, 8).map(l => `
+      labelsWithConfidence.slice(0, 10).map(l => `
         <div class="label-row">
           <span class="label-name">${escHtml(l.name)}</span>
           <div class="label-bar-track">
             <div class="label-bar-fill" style="width:${l.confidence}%"></div>
           </div>
-          <span class="label-confidence">${l.confidence}%</span>
+          <span class="label-confidence">${Math.round(l.confidence)}%</span>
         </div>
       `).join('')
     : '';
