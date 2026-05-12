@@ -1,0 +1,42 @@
+{
+  "rfi_id": "RFI-108",
+  "project": {
+    "id": "PROJ-002",
+    "name": "Downtown Tower Office Complex",
+    "number": "2023-NPC-0198"
+  },
+  "status": "Closed",
+  "priority": "Low",
+  "discipline": "Architectural",
+  "submitted_by": {
+    "name": "Mike Johnson",
+    "company": "Acme Construction",
+    "role": "General Contractor"
+  },
+  "assigned_to": {
+    "name": "Lisa Wang",
+    "company": "Skyline Architects LLC",
+    "role": "Project Architect"
+  },
+  "date_submitted": "2024-03-15",
+  "date_due": "2024-03-29",
+  "date_closed": "2024-03-27",
+  "subject": "Lobby Floor Tile Pattern Clarification",
+  "question": "Drawing A-110 (Main Lobby Floor Plan) shows a diagonal tile pattern in the elevator lobby area, but the finish schedule (Drawing A-901) specifies a running bond pattern for the same tile (Porcelanosa Bottega Caliza 24x48).\n\nPlease confirm which pattern is correct for the elevator lobby area (approximately 800 SF).",
+  "response": {
+    "responded_by": "Lisa Wang",
+    "date": "2024-03-27",
+    "text": "The diagonal pattern shown on A-110 is correct for the elevator lobby area. The finish schedule (A-901) has been updated to reflect this. The running bond pattern applies only to the corridor areas outside the elevator lobby.\n\nRevised finish schedule issued with ASI-011.",
+    "attachments": [{"name": "ASI-011_Finish_Schedule_Rev.pdf", "type": "drawing"}]
+  },
+  "attachments": [
+    {"name": "A-110_Lobby_Floor_Plan.pdf", "type": "drawing"},
+    {"name": "A-901_Finish_Schedule.pdf", "type": "drawing"}
+  ],
+  "referenced_specs": ["09 30 00 - Tiling"],
+  "referenced_drawings": ["A-110", "A-901"],
+  "cost_impact": "None",
+  "schedule_impact": "None - tile installation not yet started",
+  "related_rfis": [],
+  "tags": ["architectural", "finishes", "clarification", "simple", "resolved"]
+}

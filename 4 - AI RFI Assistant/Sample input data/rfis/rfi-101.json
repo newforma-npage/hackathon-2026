@@ -1,0 +1,37 @@
+{
+  "rfi_id": "RFI-101",
+  "project": {
+    "id": "PROJ-002",
+    "name": "Downtown Tower Office Complex",
+    "number": "2023-NPC-0198"
+  },
+  "status": "Open",
+  "priority": "High",
+  "discipline": "Structural",
+  "submitted_by": {
+    "name": "Mike Johnson",
+    "company": "Acme Construction",
+    "role": "General Contractor"
+  },
+  "assigned_to": {
+    "name": "Lisa Wang",
+    "company": "Skyline Architects LLC",
+    "role": "Project Architect"
+  },
+  "date_submitted": "2024-04-18",
+  "date_due": "2024-05-02",
+  "date_closed": null,
+  "subject": "Steel Connection Detail Conflict at Transfer Beam Level 5",
+  "question": "Drawing S-501 shows a moment connection at grid intersection B-5/Level 5 using a bolted end plate detail. However, Drawing S-301 (connection schedule) specifies a shear tab connection at the same location. The transfer beam at this level carries significant gravity loads from the upper floors. Which connection detail governs?\n\nAdditionally, the steel fabricator notes that the end plate detail requires a thicker column flange (minimum 2\" per AISC Table 4-2) than what is shown on the column schedule (1.5\" flange on W14x176). Please confirm if the column section needs to be upsized.",
+  "attachments": [
+    {"name": "S-501_Transfer_Beam_Detail.pdf", "type": "drawing"},
+    {"name": "S-301_Connection_Schedule.pdf", "type": "drawing"},
+    {"name": "Fabricator_Markup_Grid_B5.pdf", "type": "markup"}
+  ],
+  "referenced_specs": ["05 12 00 - Structural Steel Framing", "05 12 13 - Architecturally Exposed Structural Steel"],
+  "referenced_drawings": ["S-501", "S-301", "S-102 (Column Schedule)"],
+  "cost_impact": "Potential - column upsizing if required",
+  "schedule_impact": "2 weeks - steel fabrication on hold for this connection",
+  "related_rfis": ["RFI-087 (Column splice detail Level 4-5)"],
+  "tags": ["structural", "steel", "connection", "conflict", "transfer beam"]
+}

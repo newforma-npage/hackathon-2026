@@ -1,0 +1,38 @@
+{
+  "rfi_id": "RFI-103",
+  "project": {
+    "id": "PROJ-004",
+    "name": "Eastside Medical Pavilion",
+    "number": "2024-NPC-0215"
+  },
+  "status": "Open",
+  "priority": "High",
+  "discipline": "Specialty/Medical",
+  "submitted_by": {
+    "name": "Amanda Foster",
+    "company": "Pacific Builders Inc",
+    "role": "Project Manager"
+  },
+  "assigned_to": {
+    "name": "Nancy Liu",
+    "company": "MedSpace Architects",
+    "role": "Healthcare Architect"
+  },
+  "date_submitted": "2024-04-22",
+  "date_due": "2024-05-06",
+  "date_closed": null,
+  "subject": "MRI Suite Door Size and Shielding Continuity",
+  "question": "The MRI suite (Room 1-142) requires RF shielding continuity per the revised specs issued with RFI-014 response. The current door schedule (Drawing A-801) shows a 3'-0\" x 7'-0\" door at this location.\n\nThe MRI equipment vendor (GE Healthcare) states that the magnet delivery requires a minimum 8'-0\" wide x 8'-0\" tall clear opening for installation. After installation, the permanent RF-shielded door can be the standard 3'-0\" width.\n\nQuestions:\n1. Should we frame the opening at 8'-0\" x 8'-0\" with a removable header for equipment delivery?\n2. What is the RF shielding detail at the temporary opening during construction?\n3. The structural engineer needs to confirm the header can be removed and reinstalled without compromising the floor above.\n4. Who is responsible for the temporary shielding during the installation period - GC or equipment vendor?\n\nThis affects our framing schedule for the imaging wing. We need to know the rough opening size before we can proceed with metal stud layout.",
+  "attachments": [
+    {"name": "A-801_Door_Schedule.pdf", "type": "drawing"},
+    {"name": "GE_MRI_Installation_Guide.pdf", "type": "vendor_doc"},
+    {"name": "RF_Shielding_Detail_Rev2.pdf", "type": "drawing"},
+    {"name": "Structural_Framing_Plan_Level1.pdf", "type": "drawing"}
+  ],
+  "referenced_specs": ["08 11 00 - Metal Doors and Frames", "13 49 00 - RF Shielding", "11 52 00 - Medical Equipment"],
+  "referenced_drawings": ["A-801", "A-142 (MRI Room Plan)", "S-101 (Framing Plan)"],
+  "cost_impact": "Moderate - removable header and temporary shielding",
+  "schedule_impact": "1 week - framing on hold pending opening size confirmation",
+  "related_rfis": ["RFI-014 (Radiation shielding thickness)"],
+  "tags": ["medical", "MRI", "shielding", "door", "equipment-access", "multi-discipline"]
+}

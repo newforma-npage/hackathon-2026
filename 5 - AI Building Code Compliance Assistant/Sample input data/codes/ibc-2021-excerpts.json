@@ -1,0 +1,77 @@
+{
+  "code": "International Building Code (IBC)",
+  "edition": "2021",
+  "jurisdiction": "Oregon (with state amendments)",
+  "sections": [
+    {
+      "section": "508.4",
+      "title": "Separated Occupancies",
+      "text": "Where the provisions of this section are applicable, each portion of the building shall be individually classified and the requirements for each separated occupancy shall be determined. Fire barriers separating occupancies shall have a fire-resistance rating of not less than that indicated in Table 508.4."
+    },
+    {
+      "section": "Table 508.4",
+      "title": "Required Separation of Occupancies (Hours)",
+      "text": "S-2 (Parking) adjacent to B (Business): 2 hours with sprinklers, 3 hours without. A-3 (Assembly) adjacent to B (Business): 1 hour with sprinklers, 2 hours without. I-2 (Healthcare) adjacent to B (Business): 2 hours with sprinklers, not permitted without."
+    },
+    {
+      "section": "1006.2.1",
+      "title": "Egress Based on Occupant Load",
+      "text": "Rooms or spaces with an occupant load greater than 50 shall have a minimum of two exits or exit access doorways. The minimum number of exits shall be in accordance with Table 1006.2.1."
+    },
+    {
+      "section": "1006.3.2",
+      "title": "Egress Width",
+      "text": "The minimum width of each door opening shall be sufficient for the occupant load thereof and shall provide a minimum clear width of 32 inches. Clear opening width shall be measured between the face of the door and the stop, with the door open 90 degrees."
+    },
+    {
+      "section": "1020.1",
+      "title": "Corridors",
+      "text": "Corridors shall be fire-resistance rated in accordance with Table 1020.1. The corridor walls required to be fire-resistance rated shall comply with Section 708 for fire partitions."
+    },
+    {
+      "section": "Table 1020.1",
+      "title": "Corridor Fire-Resistance Rating",
+      "text": "Occupancy H-1, H-2, H-3: 1 hour (all). Occupancy I-2: 0 hours (with sprinklers), 1 hour (without). Occupancy B, E, M, S: 0 hours (with sprinklers), 1 hour (without). Occupancy R: 0.5 hours (with sprinklers), 1 hour (without)."
+    },
+    {
+      "section": "1009.1",
+      "title": "Accessible Means of Egress Required",
+      "text": "Accessible means of egress shall comply with this section. Accessible spaces shall be provided with not less than one accessible means of egress. Where more than one means of egress is required, each accessible portion of the space shall be served by not less than two accessible means of egress."
+    },
+    {
+      "section": "903.2.1.3",
+      "title": "Group B (Business) Sprinkler Requirements",
+      "text": "An automatic sprinkler system shall be provided throughout all buildings containing a Group B occupancy where one of the following conditions exists: 1. The fire area exceeds 12,000 square feet. 2. The fire area is located more than three stories above grade plane. 3. The combined fire areas on all floors exceed 24,000 square feet."
+    },
+    {
+      "section": "712.1.9",
+      "title": "Shaft Enclosures - Penetrations",
+      "text": "Penetrations of shaft enclosures shall be protected in accordance with Section 714 as required for the fire-resistance rating of the shaft enclosure."
+    },
+    {
+      "section": "1010.1.1",
+      "title": "Size of Doors",
+      "text": "The minimum width of each door opening shall be sufficient for the occupant load thereof and shall provide a clear width of not less than 32 inches. The maximum width of a swinging door leaf shall be 48 inches. The minimum door height shall be 80 inches."
+    },
+    {
+      "section": "504.3",
+      "title": "Number of Stories Above Grade Plane",
+      "text": "The maximum number of stories above grade plane for buildings shall not exceed the limits specified in Table 504.3."
+    },
+    {
+      "section": "Table 504.3",
+      "title": "Allowable Number of Stories Above Grade Plane",
+      "text": "Type IA construction: Unlimited stories for B, R-2 occupancies. Type IIA construction: 12 stories for B, 9 stories for R-2. Type IIIA construction: 6 stories for B, 5 stories for R-2."
+    },
+    {
+      "section": "1005.1",
+      "title": "Minimum Required Egress Width",
+      "text": "The means of egress width shall not be less than required by this section. The total width of means of egress in inches shall not be less than the total occupant load served by the means of egress multiplied by the factor in Table 1005.1."
+    },
+    {
+      "section": "Table 1005.1",
+      "title": "Egress Width Per Occupant Served",
+      "text": "Stairways: 0.3 inches per occupant (with sprinklers), 0.2 inches per occupant (without). Other egress components: 0.2 inches per occupant (with sprinklers), 0.15 inches per occupant (without)."
+    }
+  ]
+}

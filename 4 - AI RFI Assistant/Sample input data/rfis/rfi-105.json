@@ -1,0 +1,38 @@
+{
+  "rfi_id": "RFI-105",
+  "project": {
+    "id": "PROJ-006",
+    "name": "Lincoln High School Renovation",
+    "number": "2023-NPC-0175"
+  },
+  "status": "Open",
+  "priority": "High",
+  "discipline": "Architectural/Historic",
+  "submitted_by": {
+    "name": "John Smith",
+    "company": "Acme Construction",
+    "role": "Project Manager"
+  },
+  "assigned_to": {
+    "name": "EduSpace Design",
+    "company": "EduSpace Design",
+    "role": "Architect of Record"
+  },
+  "date_submitted": "2024-04-28",
+  "date_due": "2024-05-12",
+  "date_closed": null,
+  "subject": "Concealed Structural Damage at Historic Exterior Wall",
+  "question": "During selective demolition of the 2nd floor interior finishes (Phase 2 area), we discovered significant structural deterioration in the exterior masonry wall at grid line A, between grids 3 and 5.\n\nFindings:\n- Corroded steel lintel above window openings W-204 through W-208 (section loss estimated 40-50%)\n- Spalled brick at bearing points (approximately 6 SF per window)\n- Efflorescence and moisture staining indicating long-term water infiltration\n- Mortar joint deterioration extending 3 courses above and below lintels\n\nThis was not identified in the pre-construction survey or the structural assessment report (dated June 2023). The condition is concealed behind the existing plaster wall finish.\n\nQuestions:\n1. Does this require a structural engineer assessment before we proceed with adjacent work?\n2. What is the repair approach - lintel replacement, supplemental steel, or other?\n3. Does this affect the SHPO-approved exterior restoration scope?\n4. Is this a changed condition warranting a change order?\n\nWe have temporarily shored the area and stopped work in the affected zone. Photos and measurements attached.\n\nThis is time-sensitive as it affects our Phase 2 schedule and the summer work window.",
+  "attachments": [
+    {"name": "Photos_Lintel_Deterioration_GridA.pdf", "type": "photo"},
+    {"name": "Structural_Assessment_June2023.pdf", "type": "report"},
+    {"name": "Shoring_Plan_Temp.pdf", "type": "drawing"},
+    {"name": "Pre-Construction_Survey_Excerpt.pdf", "type": "report"}
+  ],
+  "referenced_specs": ["04 01 20 - Masonry Restoration", "05 12 00 - Structural Steel", "04 05 13 - Masonry Repointing"],
+  "referenced_drawings": ["A-201 (Exterior Elevations)", "S-201 (Structural Framing - Existing)", "A-501 (Window Schedule)"],
+  "cost_impact": "High - unforeseen condition, likely change order",
+  "schedule_impact": "3-4 weeks minimum for assessment, design, and repair",
+  "related_rfis": ["RFI-018 (Asbestos abatement scope expansion)", "RFI-019 (Historic window replacement)"],
+  "tags": ["historic", "structural", "unforeseen-condition", "masonry", "change-order", "time-sensitive"]
+}

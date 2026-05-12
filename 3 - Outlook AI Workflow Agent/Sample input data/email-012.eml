@@ -1,0 +1,32 @@
+From: Amanda Foster <afoster@pacificbuilders.com>
+To: HDR Engineering <waterprojects@hdrinc.com>
+Date: Tue, 16 Apr 2024 13:45:00 -0700
+Subject: Cedar Hills WTP - Membrane System Chemical Feed Coordination
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+HDR Team,
+
+Following up on RFI-021 regarding the membrane filtration chemical compatibility. We've received the Pall Corporation O&M manual and have the following coordination items:
+
+Cleaning chemicals required:
+- Sodium hypochlorite (NaOCl) - 12.5% solution, 500 gallons/cleaning cycle
+- Citric acid - 50% solution, 200 gallons/cleaning cycle
+- Sodium hydroxide (NaOH) - 25% solution, 100 gallons/cleaning cycle (for organic fouling)
+
+Current chemical feed building design questions:
+1. Is the NaOCl day tank sized for cleaning cycles? Current design shows 200-gallon tank (process dosing only)
+2. Citric acid is not shown in the chemical feed system at all - needs to be added
+3. CIP (clean-in-place) return piping is not shown on P&ID sheets P-301 through P-305
+
+We also need clarification on:
+- Cleaning frequency (Pall recommends every 30 days for this source water quality)
+- Waste neutralization requirements before discharge to sanitary sewer
+- Chemical storage separation requirements per IFC Chapter 50
+
+Can we schedule a coordination meeting this week? This is affecting our mechanical piping shop drawing development.
+
+Amanda Foster
+Pacific Builders Inc
+Project Manager
+503-555-0801

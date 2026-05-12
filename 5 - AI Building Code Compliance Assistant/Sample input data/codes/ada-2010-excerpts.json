@@ -1,0 +1,72 @@
+{
+  "code": "2010 ADA Standards for Accessible Design",
+  "edition": "2010",
+  "jurisdiction": "Federal (applies nationwide)",
+  "sections": [
+    {
+      "section": "404.2.3",
+      "title": "Clear Width of Doorways",
+      "text": "Door openings shall provide a clear width of 32 inches minimum. Clear openings of doorways with swinging doors shall be measured between the face of the door and the stop, with the door open 90 degrees."
+    },
+    {
+      "section": "404.2.4",
+      "title": "Maneuvering Clearances at Doors",
+      "text": "Minimum maneuvering clearances at doors and gates shall comply with Table 404.2.4.1. Maneuvering clearances shall extend the full width of the doorway and the required latch side or hinge side clearance."
+    },
+    {
+      "section": "Table 404.2.4.1",
+      "title": "Maneuvering Clearances at Manual Swinging Doors",
+      "text": "Front approach (pull side): 60 inches perpendicular, 18 inches parallel (latch side). Front approach (push side): 48 inches perpendicular, 0 inches parallel. Hinge approach (pull side): 60 inches perpendicular, 36 inches parallel."
+    },
+    {
+      "section": "403.5.1",
+      "title": "Clear Width of Walking Surfaces",
+      "text": "The clear width of walking surfaces shall be 36 inches minimum. At an accessible route where an accessible route makes a 180-degree turn around an element which is less than 48 inches wide, clear width shall be 42 inches minimum approaching the turn, 48 inches minimum at the turn, and 42 inches minimum leaving the turn."
+    },
+    {
+      "section": "405.2",
+      "title": "Ramp Slope",
+      "text": "Ramp runs shall have a running slope not steeper than 1:12. Cross slope of ramp runs shall not be steeper than 1:48."
+    },
+    {
+      "section": "405.7",
+      "title": "Ramp Landings",
+      "text": "Ramps shall have landings at the top and the bottom of each ramp run. Landings shall comply with Section 405.7. Landing length shall be 60 inches minimum clear. Landing width shall be at least as wide as the widest ramp run leading to the landing."
+    },
+    {
+      "section": "603.2.1",
+      "title": "Toilet Room Clearance",
+      "text": "Clearance around a water closet shall be 60 inches minimum measured perpendicular from the side wall and 56 inches minimum measured perpendicular from the rear wall."
+    },
+    {
+      "section": "604.5.1",
+      "title": "Side Wall Grab Bar",
+      "text": "The side wall grab bar shall be 42 inches long minimum, located 12 inches maximum from the rear wall and extending 54 inches minimum from the rear wall."
+    },
+    {
+      "section": "606.2",
+      "title": "Lavatory Clear Floor Space",
+      "text": "A clear floor space complying with Section 305, positioned for a forward approach, shall be provided. Knee and toe clearance complying with Section 306 shall be provided."
+    },
+    {
+      "section": "407.2.1.1",
+      "title": "Elevator Car Dimensions",
+      "text": "Inside car dimensions shall provide a clear floor area of 36 inches minimum in width and 54 inches minimum in depth for elevators with center-opening doors. For side-opening doors: 36 inches minimum width and 54 inches minimum depth."
+    },
+    {
+      "section": "502.2",
+      "title": "Accessible Parking Space Width",
+      "text": "Car parking spaces shall be 96 inches wide minimum. Van parking spaces shall be 132 inches wide minimum. Access aisles shall be 60 inches wide minimum (96 inches for van spaces)."
+    },
+    {
+      "section": "208.2",
+      "title": "Minimum Number of Accessible Parking Spaces",
+      "text": "Parking facilities shall provide accessible parking spaces in accordance with Table 208.2. Total parking 1-25: 1 accessible space. 26-50: 2 spaces. 51-75: 3 spaces. 76-100: 4 spaces. 101-150: 5 spaces. 151-200: 6 spaces. 201-300: 7 spaces. 301-400: 8 spaces. 401-500: 9 spaces."
+    },
+    {
+      "section": "216.2",
+      "title": "Designations (Signage)",
+      "text": "Interior and exterior signs identifying permanent rooms and spaces shall comply with Sections 703.1, 703.2, and 703.5. Signs shall include raised characters and Braille. Signs shall be installed on the wall adjacent to the latch side of the door."
+    }
+  ]
+}

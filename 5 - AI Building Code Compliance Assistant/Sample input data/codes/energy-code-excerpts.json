@@ -1,0 +1,47 @@
+{
+  "code": "ASHRAE 90.1 - Energy Standard for Buildings",
+  "edition": "2019",
+  "jurisdiction": "Oregon Energy Efficiency Specialty Code",
+  "sections": [
+    {
+      "section": "5.5.3.1",
+      "title": "Roof Insulation - Climate Zone 4C",
+      "text": "Roofs shall have a minimum insulation R-value of R-30 continuous insulation (c.i.) for metal buildings, R-25 c.i. for all other roof types. Insulation installed above deck: R-30 c.i. minimum."
+    },
+    {
+      "section": "5.5.3.2",
+      "title": "Wall Insulation - Climate Zone 4C",
+      "text": "Above-grade walls: Steel-framed: R-13 + R-7.5 c.i. minimum. Mass walls (concrete/masonry): R-11.4 c.i. minimum. Metal building walls: R-13 + R-13 c.i. minimum."
+    },
+    {
+      "section": "5.5.4.2.1",
+      "title": "Fenestration U-Factor - Climate Zone 4C",
+      "text": "Maximum U-factor for vertical fenestration: Fixed: U-0.36. Operable: U-0.43. Curtain wall/storefront: U-0.38. Maximum SHGC: 0.40 (all orientations)."
+    },
+    {
+      "section": "6.4.3.3.1",
+      "title": "Fan Power Limitation",
+      "text": "Each HVAC system having a total fan system motor nameplate horsepower exceeding 5 HP shall not exceed the allowable fan system power. Constant volume: 0.0012 W/CFM per inch of total static pressure. Variable volume: 0.0011 W/CFM per inch of total static pressure."
+    },
+    {
+      "section": "6.5.3.2.1",
+      "title": "Energy Recovery Ventilation",
+      "text": "Energy recovery systems shall be provided for systems with design supply air capacity exceeding 5,000 CFM and minimum outdoor air supply exceeding 70% of design supply air. Recovery effectiveness: 50% minimum."
+    },
+    {
+      "section": "9.4.1",
+      "title": "Interior Lighting Power Density",
+      "text": "The interior lighting power shall not exceed the interior lighting power allowance. Building Area Method: Office: 0.79 W/SF. Retail: 1.06 W/SF. Healthcare/Hospital: 1.05 W/SF. School/University: 0.87 W/SF. Parking garage: 0.15 W/SF."
+    },
+    {
+      "section": "9.4.1.1",
+      "title": "Lighting Controls",
+      "text": "Automatic shutoff: All interior lighting shall be controlled with an automatic shutoff device. Occupancy sensors required in: private offices, conference rooms, restrooms, storage rooms, and break rooms."
+    },
+    {
+      "section": "6.5.1",
+      "title": "Economizer Requirements",
+      "text": "Each cooling system having a mechanical cooling capacity exceeding 54,000 Btu/h shall include either an air economizer or a water economizer. Climate Zone 4C: Air economizer required for systems > 54,000 Btu/h."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "spec_excerpts": [
+    {
+      "section": "03 38 00",
+      "title": "Post-Tensioning",
+      "project": "PROJ-001",
+      "relevant_paragraphs": [
+        "2.1.A - Post-tensioning system shall be DYWIDAG multi-strand system or approved equal.",
+        "2.2.B - Minimum tendon cover: 2 inches from top of deck, 1.5 inches from bottom of deck.",
+        "3.3.A - Tendon profile shall not deviate more than 1/2 inch from design profile without written approval from the Engineer of Record.",
+        "3.5.C - All penetrations through post-tensioned members shall be coordinated with the PT designer. No penetrations within 12 inches of tendon centerline without specific approval."
+      ]
+    },
+    {
+      "section": "05 12 00",
+      "title": "Structural Steel Framing",
+      "project": "PROJ-002",
+      "relevant_paragraphs": [
+        "1.5.A - Where connection details conflict between structural drawings and connection schedule, the structural drawings shall govern.",
+        "2.1.B - All structural steel shall conform to ASTM A992, Grade 50 minimum.",
+        "3.2.A - Bolted connections: ASTM A325 or A490 high-strength bolts. Snug-tight unless noted otherwise.",
+        "3.4.C - Column splices at transfer beam levels shall be complete joint penetration (CJP) welds per AWS D1.1."
+      ]
+    },
+    {
+      "section": "13 49 00",
+      "title": "RF Shielding",
+      "project": "PROJ-004",
+      "relevant_paragraphs": [
+        "1.3.A - RF shielding enclosure shall provide minimum 100 dB attenuation at frequencies from 1 MHz to 500 MHz.",
+        "2.1.A - Shielding material: Copper mesh (minimum 20 oz/SF) or galvanized steel sheet (minimum 24 gauge).",
+        "2.3.B - All penetrations through the RF shield shall use waveguide-below-cutoff or filtered penetration panels.",
+        "3.2.A - Door threshold shall maintain RF continuity. Beryllium copper finger stock gaskets required at all door frames.",
+        "3.4.A - Temporary openings during construction shall be sealed with minimum 2 layers of copper mesh, overlapped 6 inches minimum."
+      ]
+    },
+    {
+      "section": "23 31 00",
+      "title": "HVAC Ducts and Casings",
+      "project": "PROJ-002",
+      "relevant_paragraphs": [
+        "2.1.A - Maximum duct velocity in occupied spaces: 1,500 FPM for supply, 1,200 FPM for return.",
+        "2.3.B - Minimum clearance from structural members: 1 inch for insulated ducts, 2 inches for uninsulated.",
+        "3.1.C - Duct routing shall maintain minimum 18 inches clearance above finished ceiling for maintenance access.",
+        "3.4.A - Where ducts cross fire-rated assemblies, provide fire dampers per Section 23 37 00."
+      ]
+    },
+    {
+      "section": "40 05 23.13",
+      "title": "Valve Actuators",
+      "project": "PROJ-008",
+      "relevant_paragraphs": [
+        "2.1.A - Electric actuators: Rotork IQ3 series or approved equal.",
+        "2.2.A - Power supply: As shown on electrical drawings. Actuators shall be suitable for the voltage and phase indicated.",
+        "2.3.B - Fail-safe operation: Valves designated 'fail-closed' or 'fail-open' shall include integral battery backup or UPS system to drive valve to safe position on power loss.",
+        "2.4.A - All actuators shall include local position indication, remote position feedback (4-20mA), and HART communication capability."
+      ]
+    },
+    {
+      "section": "26 32 00",
+      "title": "Packaged Generator Assemblies",
+      "project": "PROJ-004",
+      "relevant_paragraphs": [
+        "1.3.A - Generator shall provide minimum 96 hours of continuous operation at full rated load.",
+        "2.1.A - Engine: Diesel, 4-cycle, turbocharged. Minimum 750 kW standby rating.",
+        "2.3.A - Fuel storage: Sub-base fuel tank, UL 142 listed, double-wall construction with leak detection.",
+        "2.3.B - Tank capacity: 1,000 gallons minimum to achieve 96-hour runtime requirement.",
+        "3.1.A - Installation shall comply with all applicable codes including IFC Chapter 57, NFPA 30, and NFPA 110."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+contact_id,project_id,name,company,role,email,phone,status,created_date
+CON-001,PROJ-001,John Smith,Acme Construction,Project Manager,jsmith@acmeconstruction.com,503-555-0101,Active,2023-01-15
+CON-002,PROJ-001,Sarah Chen,Structural Engineering Inc.,Structural Engineer,schen@sei-engineers.com,503-555-0202,Active,2023-02-01
+CON-003,PROJ-001,Mike Torres,BridgeWorks Design Group,Lead Architect,mtorres@bridgeworks.com,503-555-0303,Active,2023-01-20
+CON-004,PROJ-001,David Park,Spark Electric,Electrical Contractor,dpark@sparkelectric.com,503-555-0404,Active,2023-06-15
+CON-005,PROJ-001,Rachel Kim,City of Portland,Owner Representative,rkim@portlandoregon.gov,503-555-0505,Active,2023-01-15
+CON-006,PROJ-002,Mike Johnson,Acme Construction,General Contractor,mjohnson@acmeconstruction.com,503-555-0601,Active,2023-06-01
+CON-007,PROJ-002,Lisa Wang,Skyline Architects LLC,Project Architect,lwang@skylinearch.com,503-555-0602,Active,2023-06-01
+CON-008,PROJ-002,Tom Bradley,Pacific Mechanical,Mechanical Contractor,tbradley@pacificmech.com,503-555-0603,Active,2023-08-15
+CON-009,PROJ-002,Jennifer Adams,Pacific Glass & Glazing,Curtain Wall Subcontractor,jadams@pacificglass.com,503-555-0604,Active,2024-01-10
+CON-010,PROJ-002,Robert Chen,Metro Development Corp,Owner,rchen@metrodev.com,503-555-0605,Active,2023-06-01
+CON-011,PROJ-003,Lisa Park,Acme Construction,Project Manager,lpark@acmeconstruction.com,503-555-0701,Active,2021-03-01
+CON-012,PROJ-003,James Wilson,Community Design Partners,Architect,jwilson@communitydesign.com,503-555-0702,Active,2021-03-01
+CON-013,PROJ-003,Maria Garcia,Pacific Mechanical,Mechanical/Plumbing,mgarcia@pacificmech.com,503-555-0703,Active,2021-06-01
+CON-014,PROJ-003,Kevin O'Brien,City of Portland,Facilities Director,kobrien@portlandoregon.gov,503-555-0704,Active,2021-03-01
+CON-015,PROJ-004,Amanda Foster,Pacific Builders Inc,Project Manager,afoster@pacificbuilders.com,503-555-0801,Active,2024-02-01
+CON-016,PROJ-004,Dr. Steven Park,Providence Health Systems,Project Sponsor,spark@providence.org,503-555-0802,Active,2024-02-01
+CON-017,PROJ-004,Nancy Liu,MedSpace Architects,Healthcare Architect,nliu@medspacearch.com,503-555-0803,Active,2024-02-15
+CON-018,PROJ-005,Carlos Rivera,Turner-Pacific JV,Project Director,crivera@turnerpacific.com,503-555-0901,Active,2022-09-01
+CON-019,PROJ-005,Diana Patel,Urban Design Collective,Lead Designer,dpatel@urbandesign.com,503-555-0902,Active,2022-09-01
+CON-020,PROJ-006,John Smith,Acme Construction,Project Manager,jsmith@acmeconstruction.com,503-555-0101,Active,2023-09-01
+CON-021,PROJ-007,Frank Morrison,Kiewit-Hoffman JV,Project Executive,fmorrison@kiewithoffman.com,503-555-1001,Active,2022-06-01
+CON-022,PROJ-008,Amanda Foster,Pacific Builders Inc,Project Manager,afoster@pacificbuilders.com,503-555-0801,Active,2024-04-01

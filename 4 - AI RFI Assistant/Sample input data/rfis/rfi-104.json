@@ -1,0 +1,37 @@
+{
+  "rfi_id": "RFI-104",
+  "project": {
+    "id": "PROJ-005",
+    "name": "Waterfront Mixed-Use Development",
+    "number": "2022-NPC-0156"
+  },
+  "status": "Open",
+  "priority": "Medium",
+  "discipline": "Architectural",
+  "submitted_by": {
+    "name": "Carlos Rivera",
+    "company": "Turner-Pacific JV",
+    "role": "Project Director"
+  },
+  "assigned_to": {
+    "name": "Diana Patel",
+    "company": "Urban Design Collective",
+    "role": "Lead Designer"
+  },
+  "date_submitted": "2024-04-25",
+  "date_due": "2024-05-09",
+  "date_closed": null,
+  "subject": "Residential Unit Kitchen Exhaust Duct Routing Through Fire-Rated Corridor",
+  "question": "The kitchen exhaust duct for residential units on floors 3-12 routes through the fire-rated corridor ceiling space per Drawing M-301. The corridor is a 1-hour fire-rated assembly per the code analysis (Drawing A-001, Note 7).\n\nThe mechanical drawings show a 10\" round duct penetrating the corridor wall at each unit, running 15 feet through the corridor ceiling space, and connecting to the vertical riser in the mechanical shaft.\n\nIssues identified:\n1. The duct penetration through the 1-hour corridor wall requires a fire damper, but the spec (Section 23 33 00) does not include fire dampers at these locations\n2. The grease duct (Type I hood exhaust) requires a dedicated shaft per IMC 506.3.2 - it cannot share the corridor ceiling space with other services\n3. The residential kitchen exhaust is actually a Type II hood (domestic range), which has different requirements than Type I\n\nPlease clarify:\n- Is this a Type I or Type II exhaust system?\n- If Type II, can it route through the corridor ceiling with appropriate fire dampers?\n- If Type I, a dedicated shaft is required - where should it be located?\n\nThis affects 200 units across 10 floors. Early resolution is critical to avoid rework.",
+  "attachments": [
+    {"name": "M-301_Residential_Exhaust_Plan.pdf", "type": "drawing"},
+    {"name": "A-001_Code_Analysis.pdf", "type": "drawing"},
+    {"name": "IMC_Section_506_Excerpt.pdf", "type": "code_reference"}
+  ],
+  "referenced_specs": ["23 33 00 - Ductwork", "23 37 00 - Fire Dampers", "07 84 00 - Firestopping"],
+  "referenced_drawings": ["M-301", "A-001", "A-310 (Corridor Wall Types)", "M-001 (Mechanical Legend)"],
+  "cost_impact": "Potentially significant if dedicated shafts required for 200 units",
+  "schedule_impact": "2-3 weeks if redesign needed before rough-in",
+  "related_rfis": ["RFI-017 (STC testing results)"],
+  "tags": ["architectural", "mechanical", "fire-rating", "code-compliance", "residential", "exhaust"]
+}

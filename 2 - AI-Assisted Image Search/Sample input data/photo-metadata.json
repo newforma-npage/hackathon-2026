@@ -1,0 +1,180 @@
+{
+  "photos": [
+    {
+      "filename": "site-photo-01.jpg",
+      "project_id": "PROJ-001",
+      "project_name": "Harbor Bridge Reconstruction",
+      "date_taken": "2024-04-15T08:30:00-07:00",
+      "taken_by": "John Smith",
+      "location": "Pier P-3, East Side",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-02.jpg",
+      "project_id": "PROJ-001",
+      "project_name": "Harbor Bridge Reconstruction",
+      "date_taken": "2024-04-20T14:15:00-07:00",
+      "taken_by": "John Smith",
+      "location": "Station 4+50, Deck Level",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-03.jpg",
+      "project_id": "PROJ-001",
+      "project_name": "Harbor Bridge Reconstruction",
+      "date_taken": "2024-04-22T07:45:00-07:00",
+      "taken_by": "David Park",
+      "location": "East Abutment, Grid Lines 1-4",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-04.jpg",
+      "project_id": "PROJ-002",
+      "project_name": "Downtown Tower Office Complex",
+      "date_taken": "2024-04-18T10:00:00-07:00",
+      "taken_by": "Mike Johnson",
+      "location": "Floor 14, Grid B-5",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-05.jpg",
+      "project_id": "PROJ-002",
+      "project_name": "Downtown Tower Office Complex",
+      "date_taken": "2024-05-02T11:30:00-07:00",
+      "taken_by": "Tom Bradley",
+      "location": "Floor 18, Corridor Ceiling",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-06.jpg",
+      "project_id": "PROJ-002",
+      "project_name": "Downtown Tower Office Complex",
+      "date_taken": "2024-06-15T09:00:00-07:00",
+      "taken_by": "Jennifer Adams",
+      "location": "Ground Floor, South Elevation",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-07.jpg",
+      "project_id": "PROJ-004",
+      "project_name": "Eastside Medical Pavilion",
+      "date_taken": "2024-06-01T13:00:00-07:00",
+      "taken_by": "Amanda Foster",
+      "location": "Room 1-142, Level 1",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-08.jpg",
+      "project_id": "PROJ-004",
+      "project_name": "Eastside Medical Pavilion",
+      "date_taken": "2024-05-15T10:30:00-07:00",
+      "taken_by": "Amanda Foster",
+      "location": "Basement Mechanical Room",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-09.jpg",
+      "project_id": "PROJ-005",
+      "project_name": "Waterfront Mixed-Use Development",
+      "date_taken": "2024-04-10T15:00:00-07:00",
+      "taken_by": "Carlos Rivera",
+      "location": "Floor 4, Unit 4A/4B",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-10.jpg",
+      "project_id": "PROJ-005",
+      "project_name": "Waterfront Mixed-Use Development",
+      "date_taken": "2024-03-20T08:00:00-07:00",
+      "taken_by": "Carlos Rivera",
+      "location": "Parking Level 1, South Entry",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-11.jpg",
+      "project_id": "PROJ-006",
+      "project_name": "Lincoln High School Renovation",
+      "date_taken": "2024-04-28T09:15:00-07:00",
+      "taken_by": "John Smith",
+      "location": "2nd Floor, Grid Line A",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-12.jpg",
+      "project_id": "PROJ-006",
+      "project_name": "Lincoln High School Renovation",
+      "date_taken": "2024-04-28T09:20:00-07:00",
+      "taken_by": "John Smith",
+      "location": "2nd Floor, Window W-206",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-13.jpg",
+      "project_id": "PROJ-007",
+      "project_name": "Airport Terminal C Expansion",
+      "date_taken": "2024-05-01T11:00:00-07:00",
+      "taken_by": "Frank Morrison",
+      "location": "Security Checkpoint Area",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-14.jpg",
+      "project_id": "PROJ-008",
+      "project_name": "Cedar Hills Water Treatment Plant",
+      "date_taken": "2024-07-01T14:00:00-07:00",
+      "taken_by": "Amanda Foster",
+      "location": "Raw Water Intake Building",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-15.jpg",
+      "project_id": "PROJ-001",
+      "project_name": "Harbor Bridge Reconstruction",
+      "date_taken": "2024-03-01T16:00:00-07:00",
+      "taken_by": "John Smith",
+      "location": "Pier P-1, Bearing Seat",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    },
+    {
+      "filename": "site-photo-16.jpg",
+      "project_id": "PROJ-002",
+      "project_name": "Downtown Tower Office Complex",
+      "date_taken": "2024-05-30T12:00:00-07:00",
+      "taken_by": "Mike Johnson",
+      "location": "Roof Level",
+      "tags": [],
+      "ai_description": null,
+      "ai_labels": []
+    }
+  ]
+}
