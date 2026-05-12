@@ -129,6 +129,8 @@ function applyFilters() {
   if (projVal) filtered = filtered.filter(p => p.project_id === projVal);
   if (photogVal) filtered = filtered.filter(p => p.taken_by === photogVal);
   renderPhotos(filtered);
+  // Reset search placeholder if it was set by Find Similar
+  searchInput.placeholder = 'Search photos by content, location, or project...';
   if (resultsInfo) {
     if (projVal || photogVal) {
       resultsInfo.innerHTML = `<strong>${filtered.length}</strong> photo${filtered.length !== 1 ? 's' : ''} matching filters`;
