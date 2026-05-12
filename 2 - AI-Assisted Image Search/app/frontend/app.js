@@ -200,9 +200,27 @@ async function handleSearch() {
     return;
   }
 
-  // 🦆 Easter egg: "duck" → suggest "duct"
-  if (query.toLowerCase() === 'duck') {
-    showEmpty(true, '🦆 Quack!', 'Did you mean "duct"? This is a construction site, not a pond!');
+  // 🎉 Construction typo easter eggs
+  const easterEggs = {
+    'duck':    { emoji: '🦆', title: '🦆 Quack!', msg: 'Did you mean "duct"? This is a construction site, not a pond!' },
+    'bear':    { emoji: '🐻', title: '🐻 Rawr!', msg: 'Did you mean "beam"? No bears on this job site... we hope.' },
+    'bowel':   { emoji: '😳', title: '😳 Uh oh...', msg: 'Did you mean "bolt"? Let\'s keep things professional here.' },
+    'grout':   { emoji: '🐟', title: '🐟 Gone fishing?', msg: 'Did you mean "grout"? Wait... you actually got it right. Carry on!' },
+    'truss':   { emoji: '🤝', title: '🤝 Trust issues?', msg: 'Good news — "truss" is correct! Searching now...' },
+    'weld':    { emoji: '🧙', title: '🧙 You\'re a wizard!', msg: '"Weld" is correct! No spell-check needed.' },
+    'steal':   { emoji: '🦹', title: '🦹 Stop right there!', msg: 'Did you mean "steel"? We build things here, not steal them!' },
+    'led':     { emoji: '✏️', title: '✏️ Pencil pusher?', msg: 'Did you mean "lead" (the metal)? Or maybe "LED" (the light)?' },
+    'flour':   { emoji: '🧁', title: '🧁 Wrong site!', msg: 'Did you mean "floor"? The bakery is next door.' },
+    'ceiling': { emoji: '🎵', title: '🎵 Sealed with a kiss?', msg: 'Did you mean "sealing"? Or is the ceiling actually what you want? Searching...' },
+    'bored':   { emoji: '😴', title: '😴 Same tbh', msg: 'Did you mean "board"? We get it, meetings are long.' },
+    'plain':   { emoji: '✈️', title: '✈️ Taking off?', msg: 'Did you mean "plane" (the tool)? Or "plain" concrete? Searching both!' },
+    'nails':   { emoji: '💅', title: '💅 Fabulous!', msg: 'Construction nails or a manicure? Searching the construction kind...' },
+  };
+
+  const eggKey = query.toLowerCase();
+  const egg = easterEggs[eggKey];
+  if (egg && !egg.msg.includes('Searching')) {
+    showEmpty(true, egg.title, egg.msg);
     photoGrid.innerHTML = '';
     if (resultsInfo) resultsInfo.innerHTML = '';
     showLoading(false);
