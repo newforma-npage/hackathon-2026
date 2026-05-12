@@ -419,27 +419,28 @@ function handleFindSimilar() {
     return;
   }
 
-  // Score all other photos by tag overlap
+  // Score all other photos by tag overlap — require at least 2 matching tags
   const scored = [];
   for (const photo of allPhotos) {
     if (photo.filename === currentPhoto.filename) continue;
     const otherLabels = new Set(photo.ai_labels || []);
     const overlap = [...photoLabels].filter(l => otherLabels.has(l)).length;
-    if (overlap > 0) {
+    if (overlap >= 2) {
       scored.push({ ...photo, relevance_score: overlap, _matchedTags: [...photoLabels].filter(l => otherLabels.has(l)) });
     }
   }
 
   scored.sort((a, b) => b.relevance_score - a.relevance_score);
+  const topResults = scored.slice(0, 8);
 
   // Close modal and show results
   closeModal();
   searchInput.value = '';
   searchInput.placeholder = `Similar to ${currentPhoto.filename} — clear to search again`;
-  renderPhotos(scored);
+  renderPhotos(topResults);
   const tagList = [...photoLabels].slice(0, 5).join(', ');
   if (resultsInfo) {
-    resultsInfo.innerHTML = `<strong>${scored.length}</strong> similar photo${scored.length !== 1 ? 's' : ''} to <strong>${escHtml(currentPhoto.filename)}</strong> (tags: ${escHtml(tagList)})
+    resultsInfo.innerHTML = `<strong>${topResults.length}</strong> similar photo${topResults.length !== 1 ? 's' : ''} to <strong>${escHtml(currentPhoto.filename)}</strong> (tags: ${escHtml(tagList)})
       <button class="results-clear-link" id="results-clear">Show all</button>`;
     document.getElementById('results-clear')?.addEventListener('click', () => {
       resultsInfo.innerHTML = '';
