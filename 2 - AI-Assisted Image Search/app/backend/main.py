@@ -10,8 +10,12 @@ Integrates:
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
+import logging
 import os
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -20,11 +24,19 @@ from typing import Optional
 import boto3
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+logger = logging.getLogger(__name__)
+
+# JPEG magic: FF D8 FF  |  PNG magic: 89 50 4E 47 0D 0A 1A 0A
+_JPEG_MAGIC = b"\xff\xd8\xff"
+_PNG_MAGIC  = b"\x89PNG\r\n\x1a\n"
+MAX_IMAGE_BYTES = 5 * 1024 * 1024  # 5 MB
+
 from .embeddings import BedrockEmbeddingClient, CURRENT_MODEL_VERSION
+from .labeling import RekognitionLabeler
 from .vector_store import (
     PhotoVector,
     SearchFilters,
@@ -41,7 +53,7 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 # ── AWS clients ───────────────────────────────────────────────────────────────
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
-rekognition = boto3.client("rekognition", region_name=AWS_REGION)
+rekognition_labeler = RekognitionLabeler(region=AWS_REGION)
 bedrock_client = BedrockEmbeddingClient(region=AWS_REGION)
 
 # DynamoDB table written by the Lambda ingestion function.
@@ -131,48 +143,27 @@ def find_photo(data: dict, filename: str) -> Optional[dict]:
     return None
 
 
-# ── Rekognition helpers ───────────────────────────────────────────────────────
-
-def rekognition_labels(image_bytes: bytes) -> tuple[list[dict], str]:
-    """
-    Call Rekognition DetectLabels.
-    Returns (label_dicts, ai_description).
-    Each label_dict: {name, confidence, parents}
-    """
-    resp = rekognition.detect_labels(
-        Image={"Bytes": image_bytes},
-        MaxLabels=20,
-        MinConfidence=70,
-    )
-    labels = [
-        {
-            "name": lbl["Name"],
-            "confidence": round(lbl["Confidence"], 2),
-            "parents": [p["Name"] for p in lbl.get("Parents", [])],
-        }
-        for lbl in resp["Labels"]
-    ]
-    description = ", ".join(lbl["name"] for lbl in labels[:8])
-    return labels, description
-
-
 # ── Ingestion helper ──────────────────────────────────────────────────────────
 
 def _ingest_photo(photo: dict, image_bytes: bytes) -> PhotoVector:
     """
-    Run Rekognition + Bedrock on image_bytes, update the photo dict in-place,
-    and return a PhotoVector ready for the vector store.
+    Run Rekognition labeling + Bedrock embedding on image_bytes.
+    Updates the photo dict in-place and returns a PhotoVector for the vector store.
+    Raises if the image is flagged for moderation.
     """
-    # 1. Rekognition labels
-    labels, description = rekognition_labels(image_bytes)
-    label_names = [lbl["name"].lower() for lbl in labels]
+    # 1. Rekognition — labels + moderation check (concurrent internally)
+    labeling = rekognition_labeler.label(image_bytes)
+
+    if labeling.is_flagged:
+        raise ValueError(
+            f"Image flagged for moderation: {', '.join(labeling.moderation_flags)}"
+        )
 
     # 2. Bedrock multimodal embedding (image)
     embedding = bedrock_client.embed_image(image_bytes)
 
-    # 3. Update in-memory metadata record
-    photo["ai_labels"] = label_names
-    photo["ai_description"] = description
+    # 3. Update in-memory metadata record with full tag schema
+    photo.update(labeling.to_metadata_patch())
     photo["index_version"] = CURRENT_MODEL_VERSION
     photo["indexed_at"] = datetime.utcnow().isoformat()
 
@@ -196,8 +187,8 @@ def _ingest_photo(photo: dict, image_bytes: bytes) -> PhotoVector:
         date_taken=date_taken,
         location=photo.get("location"),
         taken_by=photo.get("taken_by"),
-        ai_labels=label_names,
-        ai_description=description,
+        ai_labels=labeling.ai_labels,
+        ai_description=labeling.description,
         index_version=CURRENT_MODEL_VERSION,
         indexed_at=datetime.utcnow(),
     )
@@ -213,6 +204,13 @@ class TextSearchRequest(BaseModel):
     detected_labels: Optional[list[str]] = None
     page: int = Field(default=0, ge=0)
     page_size: int = Field(default=20, ge=1, le=50)
+
+
+class SimilarImageRequest(BaseModel):
+    """Request body for POST /search/similar (P5)."""
+    image: str = Field(..., description="Base64-encoded JPEG or PNG image.")
+    top_k: int = Field(default=10, ge=1, le=50, description="Max results to return (1–50).")
+    project_id: Optional[str] = Field(default=None, min_length=1, max_length=256)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -456,8 +454,8 @@ async def similarity_search(file: UploadFile = File(...)):
     except Exception as exc:
         # Fallback: Rekognition label overlap
         try:
-            upload_labels_raw, _ = rekognition_labels(image_bytes)
-            upload_labels = {lbl["name"].lower() for lbl in upload_labels_raw}
+            fallback_result = rekognition_labeler.label(image_bytes)
+            upload_labels = set(fallback_result.ai_labels)
         except Exception as rek_exc:
             raise HTTPException(status_code=500, detail=f"Both vector and Rekognition failed: {rek_exc}")
 
@@ -491,3 +489,111 @@ def init_vector_store():
         return {"status": "ok", "backend": VECTOR_BACKEND}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── P5: POST /search/similar ──────────────────────────────────────────────────
+
+def _detect_image_format(data: bytes) -> Optional[str]:
+    """Return 'jpeg', 'png', or None if the format is not recognised."""
+    if data[:3] == _JPEG_MAGIC:
+        return "jpeg"
+    if data[:8] == _PNG_MAGIC:
+        return "png"
+    return None
+
+
+def _error_json(code: str, message: str, status: int) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"code": code, "message": message})
+
+
+@app.post("/search/similar")
+def search_similar(req: SimilarImageRequest):
+    """
+    P5 — Similarity search endpoint.
+
+    Accepts a base64-encoded JPEG or PNG image, embeds it via
+    Bedrock Titan Multimodal (same model used at ingest time),
+    runs a kNN search against the vector store, and returns the
+    top-K most visually similar images with full metadata.
+
+    Request body:
+        image      (str, required)  Base64-encoded JPEG or PNG.
+        top_k      (int, optional)  1–50, default 10.
+        project_id (str, optional)  Restrict results to one project.
+
+    Returns HTTP 200 with:
+        query_time_ms  int
+        results        list of enriched photo dicts with similarity_score
+    """
+    request_id = str(uuid.uuid4())
+    start_ms = time.monotonic() * 1000
+
+    # 1. Decode base64
+    try:
+        image_bytes = base64.b64decode(req.image, validate=True)
+    except (binascii.Error, ValueError):
+        return _error_json(
+            "INVALID_BASE64",
+            "The 'image' field does not contain a valid Base64-encoded string.",
+            400,
+        )
+
+    # 2. Size check
+    if len(image_bytes) > MAX_IMAGE_BYTES:
+        return _error_json(
+            "IMAGE_TOO_LARGE",
+            f"Decoded image exceeds the maximum allowed size of {MAX_IMAGE_BYTES // (1024 * 1024)} MB.",
+            400,
+        )
+
+    # 3. Format check (JPEG or PNG only)
+    if _detect_image_format(image_bytes) is None:
+        return _error_json(
+            "UNSUPPORTED_FORMAT",
+            "Only JPEG and PNG images are supported.",
+            400,
+        )
+
+    # 4. Embed via Bedrock (reuse existing BedrockEmbeddingClient)
+    try:
+        query_vector = bedrock_client.embed_image(image_bytes)
+    except Exception as exc:
+        logger.error("[%s] Bedrock embedding failed: %s", request_id, exc)
+        return _error_json("EMBEDDING_FAILED", f"Image embedding failed: {exc}", 502)
+
+    # 5. kNN search via vector store (reuse existing OpenSearchVectorStore)
+    filters = SearchFilters(
+        project_ids=[req.project_id] if req.project_id else None,
+    )
+    try:
+        candidates = get_vector_store().knn_search(query_vector, k=req.top_k, filters=filters)
+    except Exception as exc:
+        logger.error("[%s] Vector search failed: %s", request_id, exc)
+        return _error_json("SEARCH_FAILED", f"Search failed: {exc}", 502)
+
+    # 6. Enrich results with metadata from photo-metadata.json
+    score_map = {c.photo_id: c.score for c in candidates}
+    data = load_metadata()
+
+    results = []
+    for photo in data["photos"]:
+        pid = photo.get("photo_id")
+        if pid and pid in score_map:
+            enriched = dict(photo)
+            enriched["similarity_score"] = round(score_map[pid], 4)
+            results.append(enriched)
+
+    # Sort by similarity descending
+    results.sort(key=lambda p: p["similarity_score"], reverse=True)
+
+    query_time_ms = int(time.monotonic() * 1000 - start_ms)
+
+    logger.info(
+        "[%s] /search/similar completed results=%d query_time_ms=%d top_k=%d project_id=%s",
+        request_id, len(results), query_time_ms, req.top_k, req.project_id,
+    )
+
+    return JSONResponse(
+        status_code=200,
+        content={"query_time_ms": query_time_ms, "results": results},
+    )
