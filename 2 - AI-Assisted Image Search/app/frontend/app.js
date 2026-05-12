@@ -200,6 +200,15 @@ async function handleSearch() {
     return;
   }
 
+  // 🦆 Easter egg: "duck" → suggest "duct"
+  if (query.toLowerCase() === 'duck') {
+    showEmpty(true, '🦆 Quack!', 'Did you mean "duct"? This is a construction site, not a pond!');
+    photoGrid.innerHTML = '';
+    if (resultsInfo) resultsInfo.innerHTML = '';
+    showLoading(false);
+    return;
+  }
+
   searchBtn.disabled = true;
   searchBtn.textContent = '...';
   showLoading(true, `Searching for "${query}"...`);
