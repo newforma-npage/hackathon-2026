@@ -54,6 +54,7 @@ const modalDesc       = document.getElementById('modal-description');
 const modalTags       = document.getElementById('modal-tags');
 const modalLabels     = document.getElementById('modal-labels');
 const modalAnalyzeBtn = document.getElementById('modal-analyze-btn');
+const modalSimilarBtn = document.getElementById('modal-similar-btn');
 
 // Toast
 const toast = document.getElementById('toast');
@@ -93,15 +94,16 @@ function bindEvents() {
   searchBtn.addEventListener('click', handleSearch);
   searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
   analyzeAllBtn.addEventListener('click', handleAnalyzeAll);
-  resetBtn.addEventListener('click', handleReset);
+  if (resetBtn) resetBtn.addEventListener('click', handleReset);
   refreshBtn.addEventListener('click', () => loadAllPhotos());
   selectFolderBtn.addEventListener('click', () => folderInput.click());
   folderInput.addEventListener('change', handleFolderSelect);
   modalClose.addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
   modalAnalyzeBtn.addEventListener('click', handleAnalyzeSingle);
+  modalSimilarBtn.addEventListener('click', handleFindSimilar);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-  emptyClearBtn.addEventListener('click', handleClear);
+  if (emptyClearBtn) emptyClearBtn.addEventListener('click', handleClear);
 
   // Suggestion chips
   document.querySelectorAll('.suggestion-chip').forEach(chip => {
@@ -111,13 +113,29 @@ function bindEvents() {
     });
   });
 
-  // Filter changes trigger search if there's a query, else re-render all
+  // Filter changes trigger search if there's a query, else filter locally
   filterProject.addEventListener('change', () => {
-    if (searchInput.value.trim()) handleSearch(); else renderPhotos(allPhotos);
+    if (searchInput.value.trim()) handleSearch(); else applyFilters();
   });
   filterPhotog.addEventListener('change', () => {
-    if (searchInput.value.trim()) handleSearch(); else renderPhotos(allPhotos);
+    if (searchInput.value.trim()) handleSearch(); else applyFilters();
   });
+}
+
+function applyFilters() {
+  let filtered = allPhotos;
+  const projVal = filterProject.value;
+  const photogVal = filterPhotog.value;
+  if (projVal) filtered = filtered.filter(p => p.project_id === projVal);
+  if (photogVal) filtered = filtered.filter(p => p.taken_by === photogVal);
+  renderPhotos(filtered);
+  if (resultsInfo) {
+    if (projVal || photogVal) {
+      resultsInfo.innerHTML = `<strong>${filtered.length}</strong> photo${filtered.length !== 1 ? 's' : ''} matching filters`;
+    } else {
+      resultsInfo.innerHTML = '';
+    }
+  }
 }
 
 // ── Data Loading ───────────────────────────────────────────
@@ -348,6 +366,42 @@ async function handleAnalyzeSingle() {
     modalAnalyzeBtn.textContent = 'Analyze with AI';
     modalAnalyzeBtn.disabled = false;
   }
+}
+
+function handleFindSimilar() {
+  if (!currentPhoto) return;
+  const photoLabels = new Set(currentPhoto.ai_labels || []);
+  if (photoLabels.size === 0) {
+    showToast('This photo has no AI labels yet. Analyze it first.', 'error');
+    return;
+  }
+
+  // Score all other photos by tag overlap
+  const scored = [];
+  for (const photo of allPhotos) {
+    if (photo.filename === currentPhoto.filename) continue;
+    const otherLabels = new Set(photo.ai_labels || []);
+    const overlap = [...photoLabels].filter(l => otherLabels.has(l)).length;
+    if (overlap > 0) {
+      scored.push({ ...photo, relevance_score: overlap, _matchedTags: [...photoLabels].filter(l => otherLabels.has(l)) });
+    }
+  }
+
+  scored.sort((a, b) => b.relevance_score - a.relevance_score);
+
+  // Close modal and show results
+  closeModal();
+  renderPhotos(scored);
+  const tagList = [...photoLabels].slice(0, 5).join(', ');
+  if (resultsInfo) {
+    resultsInfo.innerHTML = `<strong>${scored.length}</strong> similar photo${scored.length !== 1 ? 's' : ''} to <strong>${escHtml(currentPhoto.filename)}</strong> (tags: ${escHtml(tagList)})
+      <button class="results-clear-link" id="results-clear">Show all</button>`;
+    document.getElementById('results-clear')?.addEventListener('click', () => {
+      resultsInfo.innerHTML = '';
+      renderPhotos(allPhotos);
+    });
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── Render ─────────────────────────────────────────────────
